@@ -6,6 +6,8 @@
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
  * @website https://statsify.net
+ * @source https://github.com/toxicial/StatsifyStats/blob/main/StatsifyStats.plugin.js
+ * @updateUrl https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js
  */
  module.exports = (() => {
     const config = {
@@ -17,7 +19,7 @@
 		},
 		"changeLog": {
 			"added": {
-				"nothing": "nothing"
+				"General Stats": "this plugin has an actual use now"
 			},
 		}
 	};
