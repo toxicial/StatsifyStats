@@ -42,7 +42,9 @@
                  }
              });
          }
-         start() {}
+         start() {
+          this.forceUpdateAll();
+         }
          stop() {}
          
         } : (([Plugin, BDFDB]) => {
