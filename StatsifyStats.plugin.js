@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 0.0.1
+ * @version 1.0.0
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -9,20 +9,19 @@
  * @source https://github.com/toxicial/StatsifyStats/blob/main/StatsifyStats.plugin.js
  * @updateUrl https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js
  */
- module.exports = (() => {
+ module.exports = (_ => {
     const config = {
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "0.0.1",
-			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
+			"version": "1.0.3",
+			"description": "Adds a Hypixel stats search within discord in the chat toolbar.",
+      "github": "https://github.com/toxicial/StatsifyStats/blob/main/StatsifyStats.plugin.js",
+      "github_raw": "https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js"
 		},
 		"changeLog": {
 			"added": {
-				"General Stats": "this plugin has some actual use now"
-			},
-      "fixed": {
-				"Api Requesting": "getting an error upon entering a user's ign that dosent have data"
+				"test": "test"
 			},
 		}
 	};
