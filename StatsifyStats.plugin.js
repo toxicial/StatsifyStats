@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.4
+ * @version 1.0.1
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,14 +14,19 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.4",
+			"version": "1.0.1",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-			"fixed": {
-				"test1": "test1"
-			}
+      "changeLog": {
+        "added": {
+          "General Stats": "this plugin has some actual use now"
+        },
+        "fixed": {
+          "Discord Crashing": "error upon entering a older player"
+        }
+      }
 		}
 	};
 
