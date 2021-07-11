@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.1
+ * @version 1.0.2
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,7 +14,7 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.1",
+			"version": "1.0.2",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
@@ -23,7 +23,8 @@
           "General Stats": "this plugin has some actual use now"
         },
         "fixed": {
-          "Discord Crashing": "error upon entering a older player"
+          "Discord Crashing": "error upon entering a older player",
+          "button": "duplication of statsify button on plugin stop or update"
         }
 		}
 	};
@@ -299,7 +300,7 @@
                 }
                 
                 onStop () {
-                    const button = document.querySelector(".statsify-btn");
+                    const button = document.getElementById("statsify-btn");
                     if (button) button.remove();
                     BDFDB.PatchUtils.forceAllUpdates(this);
                 }
