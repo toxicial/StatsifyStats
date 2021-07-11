@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.0
+ * @version 1.0.4
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -10,21 +10,21 @@
  * @updateUrl https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js
  */
  module.exports = (_ => {
-    const config = {
+  const config = {
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.3",
-			"description": "Adds a Hypixel stats search within discord in the chat toolbar.",
-      "github": "https://github.com/toxicial/StatsifyStats/blob/main/StatsifyStats.plugin.js",
-      "github_raw": "https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js"
+			"version": "1.0.4",
+			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
+		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-			"added": {
-				"test": "test"
-			},
+			"fixed": {
+				"test1": "test1"
+			}
 		}
 	};
+
  
   return (window.Lightcord || window.LightCord) ? class {
 		getName () {return config.info.name;}
