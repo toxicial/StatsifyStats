@@ -19,14 +19,12 @@
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-      "changeLog": {
         "added": {
           "General Stats": "this plugin has some actual use now"
         },
         "fixed": {
           "Discord Crashing": "error upon entering a older player"
         }
-      }
 		}
 	};
 
