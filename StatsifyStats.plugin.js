@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.2
+ * @version 1.0.3
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,17 +14,13 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.2",
+			"version": "1.0.3",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-        "added": {
-          "General Stats": "this plugin has some actual use now"
-        },
         "fixed": {
-          "Discord Crashing": "error upon entering a older player",
-          "button": "duplication of statsify button on plugin stop or update"
+          "api": "updated the api pathing"
         }
 		}
 	};
@@ -422,7 +418,7 @@
         }
 
         getPlayer2() {
-          BDFDB.LibraryRequires.request(`https://hyapi.tech/player?uuid=${uuid}&key=statsifystats`, (err, res) => {
+          BDFDB.LibraryRequires.request(`https://hyapi.tech/api/player?uuid=${uuid}&key=statsifystats`, (err, res) => {
             if (res.statusCode == 200 || res.statusCode == 404) {
             const player = JSON.parse(res.body);
             console.log(res)
