@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.4
+ * @version 1.0.5
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,13 +14,16 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.4",
+			"version": "1.0.5",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
+        "added": {
+          "Guild Tab": "you can now see guild stats"
+        },
         "fixed": {
-          "api": "updated the api pathing"
+          "Discord Crashing": "multiple bug fixes, report on github if u find any"
         }
 		}
 	};
@@ -73,6 +76,8 @@
 		}    
         } : (([Plugin, BDFDB]) => {
 
+          //code stats here
+
             let uuid;
             let user;
             let player;
@@ -84,8 +89,11 @@
             let body_guild_mcColor;
             let friends;
             let friendCount;
-            let player2;
-            let profiles
+            let hyApi;
+            let profiles;
+            let guildtab;
+            let gcolor;
+            let guildGames;
 
 
             const insertCss = (css) => {
@@ -121,7 +129,7 @@
                   #statsify input:checked + .tab-label {background: #4f545c61;}
                   #statsify input:checked ~ .tab-content {max-height: 100vh;padding: 1em;}
                   .hidden{display: hidden;background-color: rgba(0, 0, 0, 0);}
-                  .top-section-name{display: flex; justify-content: center; margin-top: 20px;}
+                  .top-section-name{display: flex; justify-content: center; margin-top: 20px;cursor:default;}
                   .displaynametext{font-family: 'MinecraftiaRegular'; font-size: 30px; margin-top: 12px; margin-left: 20px;}
                   .skull{border-radius: 8px;}
                   .black {color: #000000;}
@@ -169,13 +177,17 @@
                   .content-center{display:flex;justify-content:center;}
                   .lvl-gs{transform: scale(.6); margin-bottom: -10px}
                   .ap-gs{transform: scale(.6);}
-                  .gs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:323px auto 223px;}
-                  .gs-res1{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:323px auto 223px;}
+                  .gs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:346px auto 274px;}
                   .gs-a{margin-right: 70px;}
                   .status{position:absolute;width:28px;margin-top:10px;margin-left:820px;}
                   .profiles{display:flex;justify-content:center;margin-bottom:10px;}
                   .profile{width:36px;cursor:pointer;}
                   .profile:hover{opacity: 0.93;}
+                  .gtag{font-family: 'MinecraftiaRegular'; font-size: 30px;margin-bottom:1em;margin-left:10px;h}
+                  .ggs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:317px auto 243px;}
+                  .guild-games{width:36px;cursor:help;}
+                  .stat-loader{margin-top:306.915px;}
+                  .stat-loading{}
               `);
 
 
@@ -202,7 +214,7 @@
                 <h7 class="topheader">Hypixel Stats Search</h7>
              </button>
           </div>
-          <div class="back-arrow" id="back-arrow-icon">
+          <div class="back-arrow" id="back-arrow-icon" style="cursor: pointer;">
             <svg class="back-arrow-icon button-3AYNKb" width="36" height="36" viewBox="0 0 64 64">
                 <path fill="none" d="M0 0h48v48h-48z"></path>
                 <path fill="currentColor" d="M40 22h-24.34l11.17-11.17-2.83-2.83-16 16 16 16 2.83-2.83-11.17-11.17h24.34v-4z"></path>
@@ -238,7 +250,6 @@
             var apiKey = {};
 
 
-
             var colors = {
                 "0": { color: "black" },
                 "1": { color: "dark_blue" },
@@ -258,7 +269,6 @@
                 f: { color: "white" },
               }
             
-              
 
             return class StatsifyStats extends Plugin {
 
@@ -391,41 +401,72 @@
                 const data =  JSON.parse(res.body);
                 uuid = data.id
                 user = username
-                if (uuid) this.getPlayer()
+                if (uuid) {
+                  this.getPlayer()
+                }
         })
     }
 
 
         getPlayer() {
             BDFDB.LibraryRequires.request(`https://api.hypixel.net/player?key=${apiKey}&uuid=${uuid}`, (err, res) => {
-              if (res.statusCode == 403) BDFDB.NotificationUtils.toast("Invalid Api Key", {type: "danger"});
-              else if (res.statusCode == 429) BDFDB.NotificationUtils.toast("Requesting Too Much", {type: "danger"});
-                else if (res.statusCode == 200) {
-                const body = JSON.parse(res.body);
-                player = body?.player
-
-                rank = this.getRank(player)
-                plusColor = this.getPlusColor(rank, player.rankPlusColor)
-                formattedRank = this.getFormattedRank(rank, plusColor.mc)
-
-                const ign = `${formattedRank}${player.displayname}`
-                displayName = this.mcColorParser(ign)
-
-                if (player) this.getPlayer2()
+              var body = JSON.parse(res.body)
+              if (res.statusCode == 403) {
+                BDFDB.NotificationUtils.toast("Invalid Api Key", {type: "danger"}); 
+                document.getElementById("bodyResult").innerHTML = '';
               }
-                  else BDFDB.NotificationUtils.toast("Server or Api is Down", {type: "danger"});
+              else if (res.statusCode == 429) {
+                BDFDB.NotificationUtils.toast("Requesting Too Much", {type: "danger"});
+                document.getElementById("bodyResult").innerHTML = '';
+              }
+              else if (body.player == null) {
+                BDFDB.NotificationUtils.toast("This user has not logged on to Hypixel", {type: "danger"});
+                document.getElementById("bodyResult").innerHTML = '';
+              }
+                  else if (res.statusCode == 200) {
+                  this.statLoader()
+                  const body = JSON.parse(res.body);
+                  player = body?.player
+
+                  rank = this.getRank(player)
+                  plusColor = this.getPlusColor(rank, player.rankPlusColor)
+                  formattedRank = this.getFormattedRank(rank, plusColor.mc)
+
+                  const ign = `${formattedRank}${player.displayname}`
+                  displayName = this.mcColorParser(ign)
+
+                  if (player) this.getHyapi()
+                }
+                  else {
+                    BDFDB.NotificationUtils.toast("Server or Api is Down", {type: "danger"});
+                    document.getElementById("bodyResult").innerHTML = '';
+                  }
             })
         }
 
-        getPlayer2() {
-          BDFDB.LibraryRequires.request(`https://hyapi.tech/api/player?uuid=${uuid}&key=statsifystats`, (err, res) => {
-            if (res.statusCode == 200 || res.statusCode == 404) {
+        getHyapi() {
+          BDFDB.LibraryRequires.request(`https://hyapi.tech/api/player?uuid=${uuid}&key=statsifystats&options=guild`, (err, res) => {
+            var body = JSON.parse(res.body)
+            if (res.statusCode == 200 || body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object") {
+
             const player = JSON.parse(res.body);
-            console.log(res)
-            player2 = player
-            if (player2) this.getGuild()
-            } 
-              else BDFDB.NotificationUtils.toast("Server or Api is Down", {type: "danger"});
+            hyApi = player
+
+            if (body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object") {
+              BDFDB.NotificationUtils.toast("An error occurred with HyApi some stats wont be displayed", {type: "danger"});
+            }
+            if (hyApi) this.getGuild()
+            }
+              else if (body.error === "Reached query limit per minute [20]") {
+                BDFDB.NotificationUtils.toast("You are requesting too much!", {type: "danger"});
+                document.getElementById("bodyResult").innerHTML = '';
+              }
+                else if (res.statusCode == 404) {
+                  BDFDB.NotificationUtils.toast("An error occurred with HyApi, please report on github if not fixed", {type: "danger"});
+                  document.getElementById("bodyResult").innerHTML = '';
+                }
+                  else BDFDB.NotificationUtils.toast("HyApi is Down", {type: "danger"});
+                  document.getElementById("bodyResult").innerHTML = '';
         })
         }
 
@@ -472,8 +513,13 @@
             
         }
 
-        backArrow() {
+        statLoader() {
+          let temp = document.getElementById("bodyResult")
+          temp.innerHTML = `<div class="stat-loader content-center"><img class="stat-loading" src="https://cdn.discordapp.com/attachments/809515941419155526/865340849595744286/statsify.gif">
+          </div>`
+        }
 
+        backArrow() {
             document.getElementById("bodyResult").innerHTML = '';
         }
 
@@ -577,40 +623,116 @@
           }
 
           status() {
-            let online = player2.online;
+            let online = hyApi.online;
             let status = document.getElementById("status");
 
-            if (online == true) status.src="https://statsify.net/img/assets/online.png";
+            if (online == true) {
+              status.src="https://statsify.net/img/assets/online.png";
+              status.title=`${player.displayname} is online`;
+            }
             else {
               status.src="https://statsify.net/img/assets/offline.png";
+              status.title=`${player.displayname} is offline`;
             }      
           }
             
 
           loadProfile() {
-            const profile = `${player2?.social ? `<div class="profiles">
-            ${player2?.social?.youtube ? `<a style="cursor: default;" class="youtube"><img title="Open Link to Youtube!" class="profile" data-tooltip="Open Link" onclick="window.open('${player2?.social?.youtube}')"id="click-youtube" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209057353799.png?v=1"><a>` : ""}
-            ${player2?.social?.twitch ? `<a style="cursor: default;" class="twitch"><img title="Open Link to Twitch!" class="profile" data-tooltip="Open Link" onclick="window.open('${player2?.social?.twitch}')"id="click-twitch" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209350955029.png?v=1"></a>` : ""}
-            ${player2?.social?.twitter ? `<a style="cursor: default;" class="twitter"><img title="Open Link to Twitter!" class="profile" data-tooltip="Open Link" onclick="window.open('${player2?.social?.twitter}')"id="click-twitter" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209241903145.png?v=1"></a>` : ""}
-            ${player2?.social?.instagram ? `<a style="cursor: default;" class="instagram"><img title="Open Link to Instagram!" class="profile" data-tooltip="Open Link" onclick="window.open('${player2?.social?.instagram}')"id="click-instagram" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209363669062.png?v=1"></a>` : ""}
-            ${player2?.social?.hypixel ? `<a style="cursor: default;" class="hypixel"><img title="Open Link to Hypixel!" class="profile" data-tooltip="Open Link" onclick="window.open('${player2?.social?.hypixel}')"id="click-hypixel" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967451622342666.png?v=1"></a>` : ""}
-            ${player2?.social?.discord ? `<a style="cursor: default;" class="discord"><img class="profile" title="Copy!" id="click-discord" src="https://media.discordapp.net/attachments/805054249552576524/862809743013052446/Discord_Logo_Circle.png?width=701&height=701"><p id="profile-discord"style="font-size: 0px;position:absolute;">${player2?.social?.discord}</p></a>` : ""}
+            const profile = `${player?.socialMedia ? `<div class="profiles">
+            ${player?.socialMedia?.links?.YOUTUBE ? `<a style="cursor: default;" class="youtube"><img title="Open Link to Youtube!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.YOUTUBE}')"id="click-youtube" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209057353799.png?v=1"></a>` : ""}
+            ${player?.socialMedia?.links?.TWITCH ? `<a style="cursor: default;" class="twitch"><img title="Open Link to Twitch!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.TWITCH}')"id="click-twitch" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209350955029.png?v=1"></a>` : ""}
+            ${player?.socialMedia?.links?.TWITTER ? `<a style="cursor: default;" class="twitter"><img title="Open Link to Twitter!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.TWITTER}')"id="click-twitter" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209241903145.png?v=1"></a>` : ""}
+            ${player?.socialMedia?.links?.INSTAGRAM ? `<a style="cursor: default;" class="instagram"><img title="Open Link to Instagram!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.INSTAGRAM}')"id="click-instagram" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209363669062.png?v=1"></a>` : ""}
+            ${player?.socialMedia?.links?.HYPIXEL ? `<a style="cursor: default;" class="hypixel"><img title="Open Link to Hypixel!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.HYPIXEL}')"id="click-hypixel" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967451622342666.png?v=1"></a>` : ""}
+            ${player?.socialMedia?.links?.DISCORD ? `<a style="cursor: default;" class="discord"><img class="profile" title="Copy!" id="click-discord" src="https://media.discordapp.net/attachments/805054249552576524/862809743013052446/Discord_Logo_Circle.png?width=701&height=701"><p id="profile-discord"style="font-size: 0px;position:absolute;">${player?.socialMedia?.links?.DISCORD}</p></a>` : ""}
             </div>` : ""}`
             profiles = profile
-          }     
+          }
+
+          loadGuildGames() {
+            const ggames = `${guild?.guild?.preferredGames ? `<div>
+            <div>
+            <a class="content-center"><span style="color: white;margin-right: 1px;font-size: 20px;margin-bottom:5px;">Preferred Games</span></a>
+            </div>
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "QUAKECRAFT" ) ? `<a style="cursor: default;"><img class="guild-games" title="QuakeCraft" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Quakecraft-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "WALLS" ) ? `<a style="cursor: default;"><img class="guild-games" title="The Walls" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Walls-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "PAINTBALL" ) ? `<a style="cursor: default;"><img class="guild-games" title="PaintBall" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Paintball-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SURVIVAL_GAMES" ) ? `<a style="cursor: default;"><img class="guild-games" title="Blitz" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SG-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "TNTGAMES" ) ? `<a style="cursor: default;"><img class="guild-games" title="TNT Games" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/TNT-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "VAMPIREZ" ) ? `<a style="cursor: default;"><img class="guild-games" title="VampireZ" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/VampireZ-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "WALLS3" ) ? `<a style="cursor: default;"><img class="guild-games" title="Mega Walls" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/MegaWalls-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "ARCADE" ) ? `<a style="cursor: default;"><img class="guild-games" title="Arcade" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Arcade-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "ARENA" ) ? `<a style="cursor: default;"><img class="guild-games" title="Arena Brawl" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Arena-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "UHC" ) ? `<a style="cursor: default;"><img class="guild-games" title="UHC" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/UHC-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "MCGO" ) ? `<a style="cursor: default;"><img class="guild-games" title="Cops vs Crims" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/CVC-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "BATTLEGROUND" ) ? `<a style="cursor: default;"><img class="guild-games" title="Warlords" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Warlords-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SUPER_SMASH" ) ? `<a style="cursor: default;"><img class="guild-games" title="Smash Heroes" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SmashHeroes-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "GINGERBREAD" ) ? `<a style="cursor: default;"><img class="guild-games" title="Turbo Kart Racers" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/TurboKartRacers-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "HOUSING" ) ? `<a style="cursor: default;"><img class="guild-games" title="Housing" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Housing-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SKYWARS" ) ? `<a style="cursor: default;"><img class="guild-games" title="Skywars" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Skywars-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "TRUE_COMBAT" ) ? `<a style="cursor: default;"><img class="guild-games" title="Crazy Walls" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/CrazyWalls-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SPEED_UHC" ) ? `<a style="cursor: default;"><img class="guild-games" title="Speed UHC" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SpeedUHC-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SKYCLASH" ) ? `<a style="cursor: default;"><img class="guild-games" title="Skyclash" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SkyClash-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "PROTOTYPE" ) ? `<a style="cursor: default;"><img class="guild-games" title="Prototype" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Prototype-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "BEDWARS" ) ? `<a style="cursor: default;"><img class="guild-games" title="Bedwars" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/BedWars-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "MURDER_MYSTERY" ) ? `<a style="cursor: default;"><img class="guild-games" title="Murder Mystery" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/MurderMystery-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "BUILD_BATTLE" ) ? `<a style="cursor: default;"><img class="guild-games" title="Build Battle" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/BuildBattle-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "DUELS" ) ? `<a style="cursor: default;"><img class="guild-games" title="Duels" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Duels-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "PIT" ) ? `<a style="cursor: default;"><img class="guild-games" title="Pit" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/Pit-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SKYBLOCK" ) ? `<a style="cursor: default;"><img class="guild-games" title="SkyBlock" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SkyBlock-64.png"></a>` : ``}
+            ${guild?.guild?.preferredGames.find((preferredGames) => preferredGames === "SMP" ) ? `<a style="cursor: default;"><img class="guild-games" title="SMP" style="margin-right: 5px; margin-top: 5px;" src="https://hypixel.net/styles/hypixel-v2/images/game-icons/SMP-128.png"></a>` : ``}
+            </div>` : ``}`
+            guildGames = ggames
+          }
+
+          
+          loadGuildTab() {
+            this.loadGuildGames()
+
+            const guildcheck = `${guild?.guild ? `<div>
+            <div>
+            <a class=content-center> <h1 class="gtag">${gcolor}</h1> </a> 
+            </div>
+            <div>
+            <div class="ggs-res">
+            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(hyApi.guild?.level || 0).toLocaleString()}</span></a>
+            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Name</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(hyApi?.guild?.name || 0).toLocaleString()}</span></a>
+            <a class=""><span style="color: white;margin-right: 1px;font-size: 20px;">Members</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(guild?.guild?.members?.length || 0).toLocaleString()}<br></span></a>
+            </div>
+            </div>
+            <div>
+            <div class="ggs-res">
+            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Creation</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(new Date(guild?.guild?.created) || 0).toLocaleString()}</span></a>
+            <a class="gs-a" style="overflow-wrap: anywhere;"><span style="color: white;margin-right: 1px;font-size: 20px;">Description</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;-webkit-user-select:text;cursor:text;"><br>${(guild?.guild?.description || "Nothing Set").toLocaleString()}</span></a>
+            <a class=""><span style="color: white;margin-right: 1px;font-size: 20px;">Publicly Listed</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(guild?.guild?.publiclyListed ? "Yes" : "No" || "No").toLocaleString()}<br></span></a>
+            </div>
+            </div>
+            <div style="display: grid;margin-bottom: 20px;text-align: center;">
+            ${guildGames}
+            </div>
+            <div class="tab" style="margin-top: 1em;">
+            <input class="input56" type="checkbox" id="chck50">
+            <label class="tab-label" for="chck50">Guild Members</label>
+            <div class="tab-content" style="background-color: #36393f;">
+            <h1 class="content-center"style="font-size:20px; font-family:Minecraftia; color:#FF5555;">coming in the future</h1>
+            </div>
+            </div>
+            </div>` : `<div class="content-center"><a><span style="font-family:Minecraftia;font-size: 20px;color: #FF5555;">${displayName} is not in a guild</span></a></div>`}`
+            guildtab = guildcheck
+          }
+          
 
         popoverUpdater() {    
               let tempbres = document.getElementById("bodyResult")
-
-              let gcolor = "";
   
-              var networkLevel = ((Math.sqrt(player.networkExp + 15312.5) - 125/Math.sqrt(2))/(25*Math.sqrt(2))).toFixed(0);
+              var networkLevel = ((Math.sqrt(player.networkExp || 0 + 15312.5) - 125/Math.sqrt(2))/(25*Math.sqrt(2))).toFixed(0);
 
               var rawgcolor = `${guild.guild ? guild.guild.tag ? ` ${body_guild_mcColor.mc}[${guild.guild.tag}${body_guild_mcColor.mc}]` : "" : ""}`
               gcolor = this.mcColorParser(rawgcolor)
 
               
               this.loadProfile()
+              this.loadGuildTab()
 
               tempbres.innerHTML = `<div>
                 
@@ -620,36 +742,36 @@
                 <div class="col">
                   <div>
                     <div class="tab" style="width: 860px;">
-                      <img id="status" class="status" src="">
+                      <img id="status" class="status" title="" src="">
                       <input class="input56" type="checkbox" id="chck1">
                       <label class="tab-label" for="chck1">General Stats</label>
                       <div class="tab-content">
                       <div class="">
                       <div class="gs-res">
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${networkLevel}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Quests</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(player2.quests || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${networkLevel || 0}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Quests</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi.quests || 0).toLocaleString()}</span></a>
                       <a class=""><span style="font-size: 20px;color: white;">Karma</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(player.karma || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
                       <div class="gs-res">
                       <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Ap</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(player.achievementPoints || 0).toLocaleString()}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Challenges</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(player2.challenges || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Challenges</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi.challenges || 0).toLocaleString()}</span></a>
                       <a class=""><span style="font-size: 20px;color: white;">Friends</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(friendCount || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
                       <div class="gs-res">
                       <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">First Login</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(new Date(player.firstLogin) || 0).toLocaleString()}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Last Login</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(new Date(player2.lastLogin) || 0).toLocaleString()}</span></a>
-                      <a class=""><span style="font-size: 20px;color: white;">Last Logout</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(new Date(player2.lastLogout) || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Last Login</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(new Date(hyApi.lastLogin) || 0).toLocaleString()}</span></a>
+                      <a class=""><span style="font-size: 20px;color: white;">Last Logout</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(new Date(hyApi.lastLogout) || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
                       <div class="gs-res">
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Gifts Given</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(player2?.gifted?.giftsGiven || 0).toLocaleString()}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Gifts Received</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(player2?.gifted?.giftsReceived || 0).toLocaleString()}</span></a>
-                      <a class=""><span style="color: white;margin-right: 1px;font-size: 20px;">Ranks Gifted</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(player2?.gifted?.ranksGiven || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Gifts Given</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(hyApi?.gifted?.giftsGiven || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Gifts Received</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(hyApi?.gifted?.giftsReceived || 0).toLocaleString()}</span></a>
+                      <a class=""><span style="color: white;margin-right: 1px;font-size: 20px;">Ranks Gifted</span> <span style="font-size: 18px;font-weight: bold;color: #AA00AA;"><br>${(hyApi?.gifted?.ranksGiven || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div>
@@ -667,7 +789,7 @@
                       <input class="input56" type="checkbox" id="chck2">
                       <label class="tab-label" for="chck2">Guild Stats</label>
                       <div class="tab-content">
-                        text
+                      ${guildtab}
                       </div>
                     </div>
                   <div class="tab">
@@ -836,7 +958,7 @@
               this.status()
 
 
-              if (player2?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
+              if (hyApi?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
         }
 
             };
