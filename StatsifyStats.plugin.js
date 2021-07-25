@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.5
+ * @version 1.0.6
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,16 +14,21 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.5",
+			"version": "1.0.6",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
+      "progress": {
+        "Stats": "so far finished the main stats, now i am going to move onto displaying game stats :)"
+      },
         "added": {
-          "Guild Tab": "you can now see guild stats"
+          "Pet Stats": "Option to view lobby pet stats",
+          "Guild Members": "you now have the option to view a list of guild members with daily gexp added",
         },
         "fixed": {
-          "Discord Crashing": "multiple bug fixes, report on github if u find any"
+          "Discord Crashing": "a few more multiple bug fixes, report on github if u find any",
+          "Re-aligned": "aligned a few things to be more `CENTERED`"
         }
 		}
 	};
@@ -94,6 +99,12 @@
             let guildtab;
             let gcolor;
             let guildGames;
+            let petLevel;
+            let petLoad;
+            let totemLoad;
+            let ptableLoad;
+            let today;
+            
 
 
             const insertCss = (css) => {
@@ -127,11 +138,11 @@
                   #statsify .background-4234324234233{border-radius: 8px;background-image: url(https://media.discordapp.net/attachments/795726811648098354/852696099864444928/stootsifybg.png?width=904&height=300);background-repeat: no-repeat, repeat;background-position: center;padding: 0px 20px 0px 20px;height: 250px;background-size: cover;margin: 430px 0px 0px 0px;}
                   #statsify .back-arrow{position: relative !important;left: 558px;}
                   #statsify input:checked + .tab-label {background: #4f545c61;}
-                  #statsify input:checked ~ .tab-content {max-height: 100vh;padding: 1em;}
+                  #statsify input:checked ~ .tab-content {max-height: 100%;padding: 1em;}
                   .hidden{display: hidden;background-color: rgba(0, 0, 0, 0);}
                   .top-section-name{display: flex; justify-content: center; margin-top: 20px;cursor:default;}
                   .displaynametext{font-family: 'MinecraftiaRegular'; font-size: 30px; margin-top: 12px; margin-left: 20px;}
-                  .skull{border-radius: 8px;}
+                  .skull{border-radius: 8px;box-shadow: -1px 1px 10px 0px #18191c;}
                   .black {color: #000000;}
                   .black.shadow {text-shadow: 2px 2px #000000;}
                   .dark_blue {color: #0000AA;}
@@ -171,13 +182,13 @@
                   .tab {border-radius: 10px;margin-bottom: 1em;width: 100%;color: #dcddde;text-shadow: 1px 1px 1px #202225;overflow: hidden;}
                   .tab-label {display: flex;justify-content: space-between;padding: 1em;background: #40444b;font-weight: bold;cursor: pointer;}
                   .tab-label:hover {background: #4f545c61;}
-                  .tab-content {max-height: 0;padding: 0 1em;color: #dcddde;background: #32353b;transition: all 0.35s;}
+                  .tab-content {max-height: 0;padding: 0 1em;color: #dcddde;background: #32353b;transition: all 0.35s;position:sticky;}
                   .tab-close {display: flex;justify-content: flex-end;padding: 1em;font-size: 0.75em;background: #2c3e50;cursor: pointer;}
                   .tab-close:hover {background: #1a252f;}
                   .content-center{display:flex;justify-content:center;}
                   .lvl-gs{transform: scale(.6); margin-bottom: -10px}
                   .ap-gs{transform: scale(.6);}
-                  .gs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:346px auto 274px;}
+                  .gs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:346px 205px 274px;}
                   .gs-a{margin-right: 70px;}
                   .status{position:absolute;width:28px;margin-top:10px;margin-left:820px;}
                   .profiles{display:flex;justify-content:center;margin-bottom:10px;}
@@ -185,9 +196,27 @@
                   .profile:hover{opacity: 0.93;}
                   .gtag{font-family: 'MinecraftiaRegular'; font-size: 30px;margin-bottom:1em;margin-left:10px;h}
                   .ggs-res{display: grid;margin-bottom: 50px;text-align: center;grid-template-columns:317px auto 243px;}
-                  .guild-games{width:36px;cursor:help;}
+                  .guild-games{width:36px;cursor:help;box-shadow: -1px 1px 10px 0px #18191c;}
                   .stat-loader{margin-top:306.915px;}
                   .stat-loading{}
+                  .plevel-progress {height: 1.7em;width: 100%;background-color: #282a2f;position: relative;border-radius: 7px;margin-bottom:2.5em}
+                  .plevel-progress:before {content: attr(data-label);font-size: 0.8em;position: absolute;text-align: center;top: 7px;left: 0;right: 0;color: white;font-family: Minecraftia;text-shadow: -1px 2px 2px black;}
+                  .plevel-progress .pvalue {border-radius: 7px;background-color: #147ccc; display: inline-block; height: 100%;box-shadow: -14px 2px 20px #282a2f;}
+                  .totem {margin-top: 1em;display:flex;justify-content:center;counter-reset: step;}
+                  .totembar li {list-style-type: none;width: 25%;float: left;font-size: 24px;position: relative;text-align: center;text-transform: uppercase;color: #a8f0d8;}
+                  .totembar li:before {width: 30px;height: 30px;content: '';line-height: 30px;border: 2px solid #282a2f;background-color: #282a2f;display: block;text-align: center;margin: 0 auto 10px auto;border-radius: 50%;transition: all .8s;}
+                  .totembar li:after {width: 100%;height: 2px;content: '';position: absolute;background-color: #282a2f;top: 16px;left: -50%;z-index: -1;transition: all .8s;}
+                  .totembar li:first-child:after {content: none;}
+                  .totembar li.active:before {border-color: #147ccc;background-color: #147ccc;transition: all .8s;box-shadow: -4px 2px 20px #282a2f;}
+                  .totembar li.active:after {background-color: #147ccc;transition: all .8s;}
+                  .ptable {border-collapse: collapse;width: 100%;}
+                  #ptable td, th {border: 4px solid #0000;;text-align: center;padding: 8px;font-size: 19px;}
+                  #ptable th {background-color:#147ccc;font-weight:bold;}
+                  #ptable tr:nth-child(even) {background-color: #4f545c61;}
+                  .gmtable {border-collapse: collapse;width: 100%;}
+                  #gmtable td, th {border: 4px solid #0000;;text-align: center;padding: 8px;font-size: 15px;white-space: nowrap;}
+                  #gmtable th {background-color:#147ccc;font-weight:bold;}
+                  #gmtable tr:nth-child(even) {background-color: #4f545c61;}
               `);
 
 
@@ -268,6 +297,111 @@
                 e: { color: "yellow" },
                 f: { color: "white" },
               }
+
+              var pet = {
+                "1": 0,
+                "2": 200,
+                "3": 210,
+                "4": 230,
+                "5": 250,
+                "6": 280,
+                "7": 310,
+                "8": 350,
+                "9": 390,
+                "10": 450,
+                "11": 500,
+                "12": 570,
+                "13": 640,
+                "14": 710,
+                "15": 800,
+                "16": 880,
+                "17": 980,
+                "18": 1080,
+                "19": 1190,
+                "20": 1300,
+                "21": 1420,
+                "22": 1540,
+                "23": 1670,
+                "24": 1810,
+                "25": 1950,
+                "26": 2100,
+                "27": 2260,
+                "28": 2420,
+                "29": 2580,
+                "30": 2760,
+                "31": 2940,
+                "32": 3120,
+                "33": 3310,
+                "34": 3510,
+                "35": 3710,
+                "36": 3920,
+                "37": 4140,
+                "38": 4360,
+                "39": 4590,
+                "40": 4820,
+                "41": 5060,
+                "42": 5310,
+                "43": 5560,
+                "44": 5820,
+                "45": 6090,
+                "46": 6360,
+                "47": 6630,
+                "48": 6920,
+                "49": 7210,
+                "50": 7500,
+                "51": 7800,
+                "52": 8110,
+                "53": 8420,
+                "54": 8740,
+                "55": 9070,
+                "56": 9400,
+                "57": 9740,
+                "58": 10080,
+                "59": 10430,
+                "60": 10780,
+                "61": 11150,
+                "62": 11510,
+                "63": 11890,
+                "64": 12270,
+                "65": 12650,
+                "66": 13050,
+                "67": 13440,
+                "68": 13850,
+                "69": 14260,
+                "70": 14680,
+                "71": 15100,
+                "72": 15530,
+                "73": 15960,
+                "74": 16400,
+                "75": 16850,
+                "76": 17300,
+                "77": 17760,
+                "78": 18230,
+                "79": 18700,
+                "80": 19180,
+                "81": 19660,
+                "82": 20150,
+                "83": 20640,
+                "84": 21150,
+                "85": 21650,
+                "86": 22170,
+                "87": 22690,
+                "88": 23210,
+                "89": 23750,
+                "90": 24280,
+                "91": 24830,
+                "92": 25380,
+                "93": 25930,
+                "94": 26500,
+                "95": 27070,
+                "96": 27640,
+                "97": 28220,
+                "98": 28810,
+                "99": 29400,
+                "100": 30000,
+                "101": 32000
+              }
+     
             
 
             return class StatsifyStats extends Plugin {
@@ -435,6 +569,7 @@
                   const ign = `${formattedRank}${player.displayname}`
                   displayName = this.mcColorParser(ign)
 
+
                   if (player) this.getHyapi()
                 }
                   else {
@@ -447,16 +582,17 @@
         getHyapi() {
           BDFDB.LibraryRequires.request(`https://hyapi.tech/api/player?uuid=${uuid}&key=statsifystats&options=guild`, (err, res) => {
             var body = JSON.parse(res.body)
-            if (res.statusCode == 200 || body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object") {
+            if (res.statusCode == 200 || body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object" || body.error === "Cannot read property 'find' of undefined") {
 
             const player = JSON.parse(res.body);
             hyApi = player
 
-            if (body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object") {
+            if (body.error === "Cannot read property 'toLowerCase' of undefined" || body.error === "Cannot convert undefined or null to object" || body.error === "Cannot read property 'find' of undefined") {
               BDFDB.NotificationUtils.toast("An error occurred with HyApi some stats wont be displayed", {type: "danger"});
             }
             if (hyApi) this.getGuild()
             }
+
               else if (body.error === "Reached query limit per minute [20]") {
                 BDFDB.NotificationUtils.toast("You are requesting too much!", {type: "danger"});
                 document.getElementById("bodyResult").innerHTML = '';
@@ -512,6 +648,7 @@
             }
             
         }
+        
 
         statLoader() {
           let temp = document.getElementById("bodyResult")
@@ -539,17 +676,17 @@
         }
 
 
-        getRank = player => {
+        getRank = (player) => {
             let rank = 'NON';
-            if (player.monthlyPackageRank || player.packageRank || player.newPackageRank) {
-              if (player.monthlyPackageRank == "SUPERSTAR") rank = replaceRank(player.monthlyPackageRank);
+            if ((player).monthlyPackageRank || (player).packageRank || (player).newPackageRank) {
+              if ((player).monthlyPackageRank == "SUPERSTAR") rank = replaceRank((player).monthlyPackageRank);
               else {
-                if (player.packageRank && player.newPackageRank) rank = replaceRank(player.newPackageRank);
-                else rank = replaceRank(player.packageRank || player.newPackageRank);
+                if ((player).packageRank && (player).newPackageRank) rank = replaceRank((player).newPackageRank);
+                else rank = replaceRank((player).packageRank || (player).newPackageRank);
               }
             }
-            if (player.rank && player.rank != 'NORMAL') rank = player.rank.replace('MODERATOR', 'MOD');
-            if (player.prefix) rank = player.prefix.replace(/§.|\[|]/g, '');
+            if ((player).rank && (player).rank != 'NORMAL') rank = (player).rank.replace('MODERATOR', 'MOD');
+            if ((player).prefix) rank = (player).prefix.replace(/§.|\[|]/g, '');
             if (rank == "YOUTUBER") rank = "YOUTUBE"
           
             function replaceRank(toReplace) {
@@ -582,6 +719,7 @@
                 LIGHT_PURPLE: { mc: '§d', hex: '#FF55FF' },
                 WHITE: { mc: '§f', hex: '#F2F2F2' },
                 BLUE: { mc: '§9', hex: '#5555FF' },
+                DARK_BLUE: { mc: '§1', hex: '#0000AA' },
                 DARK_GREEN: { mc: '§2', hex: '#00AA00' },
                 DARK_RED: { mc: '§4', hex: '#AA0000' },
                 DARK_AQUA: { mc: '§3', hex: '#00AAAA' },
@@ -618,12 +756,12 @@
             var splitText = text.split("§").slice(1)
             var finalText = ""
           
-            splitText.forEach(parts => finalText += `<span class="${colors[parts[0]].color} shadow">${parts.split("").slice(1).join("")}</span>`)
+            splitText.forEach(parts => finalText += `<span class="${colors[parts[0]]?.color == undefined ? `white` : colors[parts[0]].color} shadow">${parts.split("").slice(1).join("")}</span>`)
             return finalText
           }
 
           status() {
-            let online = hyApi.online;
+            let online = hyApi?.online;
             let status = document.getElementById("status");
 
             if (online == true) {
@@ -635,6 +773,27 @@
               status.title=`${player.displayname} is offline`;
             }      
           }
+
+          getTempDisplayName = async (tempuuid) => {
+            const response = await fetch(`https://api.hypixel.net/player?key=${apiKey}&uuid=${tempuuid}`);
+            const data = await response.json();
+            const body = await data?.player
+            if (response.status == 200) {
+
+              var trank = this.getRank(body)
+              var tplusColor = this.getPlusColor(trank, body.rankPlusColor)
+              var tformattedRank = this.getFormattedRank(trank, tplusColor.mc)
+
+              var lastLogout = body.lastLogout
+
+              const ign = `${tformattedRank}${body.displayname}`
+              var tempDisplayName = this.mcColorParser(ign)
+
+            return { tempDisplayName, lastLogout }
+            }
+            else if (response.status == 429) return `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`
+            else return ''
+        }
             
 
           loadProfile() {
@@ -685,18 +844,87 @@
             guildGames = ggames
           }
 
+          todayDate() {
+            var todayDate = new Date();
+            var dd = String(todayDate.getDate()).padStart(2, '0');
+            var mm = String(todayDate.getMonth() + 1).padStart(2, '0'); 
+            var yyyy = todayDate.getFullYear();
+
+            todayDate = yyyy + '-' + mm + '-' + dd;
+            today = todayDate
+          }
+
+          getDailyGuildxp(guuid) {
+            let ign = guuid || null
+            let dguild = guild?.guild?.members
+
+            for (var xp in dguild ) {
+              if (dguild[xp]?.uuid === ign)
+              break;
+          }
+          return dguild[xp]?.expHistory?.[today]?.toLocaleString()
+          }
+
+          getGuildRank(guuid) {
+          let ign = guuid || null
+          let dguild = guild?.guild?.members
+
+          for (var xp in dguild ) {
+            if (dguild[xp]?.uuid === ign)
+            break;
+         }
+         return dguild[xp]?.rank
+          }
+
+          getGuildJoined(guuid) {
+            let ign = guuid || null
+            let dguild = guild?.guild?.members
+  
+            for (var xp in dguild ) {
+              if (dguild[xp]?.uuid === ign)
+              break;
+           }
+           return new Date(dguild[xp]?.joined)?.toDateString()
+          }
+
+          loadGuildMembers = async () => {
+            const ranks = Object.fromEntries(guild?.guild?.ranks.map(rank => [rank?.name.toLowerCase(), rank]));
+            const members = guild?.guild?.members.sort((a, b) => {
+              const aPriority = ranks[a.rank.toLowerCase()]?.priority
+              const bPriority = ranks[b.rank.toLowerCase()]?.priority
+            
+              if (!aPriority && !bPriority) {
+                return 7
+              }
+            
+              return (bPriority ?? 7) - (aPriority ?? 7)})
+            var gmtable = document.getElementById(`gmtbody`)
+            let dguild = await members
+            for (var table in dguild) {
+              let temp = await this.getTempDisplayName(dguild[table]?.uuid)
+
+              var row = `<tr>
+                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${temp.tempDisplayName || `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</td1>
+                <td>${await this.getGuildRank(dguild[table]?.uuid) || ""}</td>
+                <td>${await this.getDailyGuildxp(dguild[table]?.uuid) || ""}</td>
+                <td>${await this.getGuildJoined(dguild[table]?.uuid) || ""}</td>
+                <td>${new Date(temp.lastLogout).toLocaleString() || ""}</td>
+              </tr>`
+              gmtable.innerHTML += row
+            }
+          }
           
           loadGuildTab() {
             this.loadGuildGames()
 
             const guildcheck = `${guild?.guild ? `<div>
             <div>
-            <a class=content-center> <h1 class="gtag">${gcolor}</h1> </a> 
+            <a class=content-center> <h1 class="gtag">${this.mcColorParser(guild?.guild ? hyApi?.guild?.name ? ` ${body_guild_mcColor.mc}${hyApi.guild.name}${body_guild_mcColor.mc}` : "" : "")} ${gcolor}</h1> </a> 
             </div>
             <div>
             <div class="ggs-res">
-            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(hyApi.guild?.level || 0).toLocaleString()}</span></a>
-            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Name</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(hyApi?.guild?.name || 0).toLocaleString()}</span></a>
+            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(hyApi?.guild?.level || 0).toLocaleString()}</span></a>
+            <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Daily GEXP</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${this.getDailyGuildxp(uuid) || 0}</span></a>
             <a class=""><span style="color: white;margin-right: 1px;font-size: 20px;">Members</span> <span class="dark_green dark_green.shadow" style="font-size: 18px;font-weight: bold;"><br>${(guild?.guild?.members?.length || 0).toLocaleString()}<br></span></a>
             </div>
             </div>
@@ -710,17 +938,133 @@
             <div style="display: grid;margin-bottom: 20px;text-align: center;">
             ${guildGames}
             </div>
-            <div class="tab" style="margin-top: 1em;">
+            <div class="tab" style="margin-top: 1em;max-width:828px">
             <input class="input56" type="checkbox" id="chck50">
             <label class="tab-label" for="chck50">Guild Members</label>
             <div class="tab-content" style="background-color: #36393f;">
-            <h1 class="content-center"style="font-size:20px; font-family:Minecraftia; color:#FF5555;">coming in the future</h1>
+            <table class="gmtable" id="gmtable">
+              <tr>
+                  <th>Username</th>
+                  <th>Rank</th>
+                  <th>Daily GEXP</th>
+                  <th>Joined</th>
+                  <th>Last Login</th>
+              </tr>
+              <tbody id="gmtbody">
+              </tbody>
+            </table>
             </div>
             </div>
             </div>` : `<div class="content-center"><a><span style="font-family:Minecraftia;font-size: 20px;color: #FF5555;">${displayName} is not in a guild</span></a></div>`}`
             guildtab = guildcheck
           }
-          
+
+          convertPetName(name){
+            let converted = name.toLowerCase()
+            converted = converted.split(/_/)
+            if(converted.includes("baby")) converted.unshift(converted.pop())
+            converted = converted.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            converted = converted.join(" ")
+            return converted
+          }
+
+          totemLoader() {
+            var tsize = player?.achievementTotem?.allowed_max_height || 1
+            for (var i = 0; i < tsize; i++) {
+                var element = document.querySelector(`[id=totem] li:not(.active)`);
+                if (element){    
+                  element.classList.add("active");
+                }
+                  else null;   
+            }
+          }
+
+          convertPetLevel(exp) {
+            let pexp = exp || 0
+            
+            for (var level in pet) {
+              if (pexp < pet[level]){
+                break;
+              }
+            }
+            return level-1
+          }
+
+          ptableLoader() {
+            var ptable = document.getElementById(`ptbody`)
+            const pdata = player?.petStats
+            for (var table in pdata) {
+              var row = `<tr>
+                <td>${this.convertPetName(table)}</td>
+                <td>${pdata[table]?.name?.includes(`§`) ? this.mcColorParser(pdata[table]?.name || "Unset Name") : pdata[table]?.name || "Unset Name"}</td>
+                <td>${this.convertPetLevel(pdata[table]?.experience)}</td>
+              </tr>`
+              ptable.innerHTML += row
+            }
+          }
+
+
+
+          petStats() {
+            const pexp = player?.petStats?.[player?.currentPet]?.experience || 0
+
+            for (var level in pet) {
+              if (pexp < pet[level]){
+                break;
+              }
+            }
+            petLevel = level-1
+
+            petLoad = `${player?.currentPet ? `<div>
+            <div class="content-center" style="margin-bottom:1em;">
+            <a><span style="color: #a8f0d8;margin-right: 1px;font-size: 20px;">${this.convertPetName(player?.currentPet)} Pet</span></a>
+            </div>
+            <div class="content-center" style="margin-bottom:.5em;">
+              <span style="color: white;margin-right: 1px;font-size: 20px;">${player?.petStats?.[player?.currentPet]?.name?.includes(`§`) ? this.mcColorParser(player?.petStats?.[player?.currentPet]?.name) : player?.petStats?.[player?.currentPet]?.name || ""}</span>
+            </div>
+            <div class="plevel-progress" data-label="Level ${petLevel}">
+              <span class="pvalue" style="max-width:100%; width:${petLevel === 1 ? 0 : petLevel}%;"></span>
+            </div>
+            </div>` : ''}`
+
+            totemLoad = `${player?.achievementTotem?.allowed_max_height ? `<div>
+            <div class="content-center" style="margin-bottom:1em;">
+            <a><span style="color: #a8f0d8;margin-right: 1px;font-size: 20px;">Totem</span></a>
+            </div>
+            <div class="content-center" style="margin-bottom:1em;">
+            <a><span style="color: white;margin-right: 1px;font-size: 20px;">${player?.petStats?.TOTEM?.name?.includes(`§`) ? this.mcColorParser(player?.petStats?.TOTEM?.name) : player?.petStats?.TOTEM?.name || "Unset Name"}</span></a>
+            </div>
+            <div>
+            <ul id="totem" class="totembar totem">
+              <li class="" title="totem size">1</li>
+              <li class="" title="totem size">2</li>
+              <li class="" title="totem size">3</li>
+              <li class="" title="totem size">4</li>
+              <li class="" title="totem size">5</li>
+           </ul>
+          </div>
+            </div>` : `<div style="margin-bottom:1em;" class="content-center"><a><span style="font-family:Minecraftia;font-size: 15px;color: #FF5555;">${displayName} does not have a totem</span></a></div>`}`
+
+            ptableLoad = `${player?.petStats ? `<div>
+            <div class="tab" style="margin-top: 1em;">
+            <input class="input56" type="checkbox" id="chck51">
+            <label class="tab-label" for="chck51">Pet's List</label>
+            <div class="tab-content" style="background-color: #36393f;">
+            <table class="ptable" id="ptable">
+              <tr>
+                  <th>Type</th>
+                  <th>Name</th>
+                  <th>Level</th>
+              </tr>
+              <tbody id="ptbody">
+              </tbody>
+            </table>
+            </div>
+            </div>
+            </div>` : `<div class="content-center"><a><span style="font-family:Minecraftia;font-size: 15px;color: #FF5555;">${displayName} does not have any pets</span></a></div>`}`
+          }
+
+
 
         popoverUpdater() {    
               let tempbres = document.getElementById("bodyResult")
@@ -733,6 +1077,10 @@
               
               this.loadProfile()
               this.loadGuildTab()
+              this.petStats()
+              this.todayDate()
+
+
 
               tempbres.innerHTML = `<div>
                 
@@ -749,22 +1097,22 @@
                       <div class="">
                       <div class="gs-res">
                       <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Level</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${networkLevel || 0}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Quests</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi.quests || 0).toLocaleString()}</span></a>
-                      <a class=""><span style="font-size: 20px;color: white;">Karma</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(player.karma || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Quests</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi?.quests || 0).toLocaleString()}</span></a>
+                      <a class=""><span style="font-size: 20px;color: white;">Karma</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(player?.karma || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
                       <div class="gs-res">
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Ap</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(player.achievementPoints || 0).toLocaleString()}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Challenges</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi.challenges || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Ap</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(player?.achievementPoints || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Challenges</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(hyApi?.challenges || 0).toLocaleString()}</span></a>
                       <a class=""><span style="font-size: 20px;color: white;">Friends</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(friendCount || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
                       <div class="gs-res">
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">First Login</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(new Date(player.firstLogin) || 0).toLocaleString()}</span></a>
-                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Last Login</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(new Date(hyApi.lastLogin) || 0).toLocaleString()}</span></a>
-                      <a class=""><span style="font-size: 20px;color: white;">Last Logout</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(new Date(hyApi.lastLogout) || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">First Login</span> <span style="font-size: 18px;font-weight: bold;color: #FFAA00;"><br>${(new Date(player?.firstLogin) || 0).toLocaleString()}</span></a>
+                      <a class="gs-a"><span style="color: white;margin-right: 1px;font-size: 20px;">Last Login</span> <span style="font-size: 18px;font-weight: bold;color: #71e11c;"><br>${(new Date(hyApi?.lastLogin) || 0).toLocaleString()}</span></a>
+                      <a class=""><span style="font-size: 20px;color: white;">Last Logout</span> <span style="font-size: 18px;font-weight: bold;color: #ff55ffd9;"><br>${(new Date(hyApi?.lastLogout) || 0).toLocaleString()}</span></a>
                       </div>
                       </div>
                       <div class="">
@@ -796,7 +1144,9 @@
                     <input class="input56" type="checkbox" id="chck3">
                     <label class="tab-label" for="chck3">Pet Stats</label>
                     <div class="tab-content">
-                      text
+                      ${petLoad}
+                      ${totemLoad}
+                      ${ptableLoad}
                     </div>
                   </div>
                   </div>
@@ -956,12 +1306,15 @@
               </div>
               </div>`
               this.status()
+              this.totemLoader()
+              this.ptableLoader()
+              this.loadGuildMembers()
 
 
               if (hyApi?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
         }
 
+
             };
         })(window.BDFDB_Global.PluginUtils.buildPlugin(config));
  })();
-
