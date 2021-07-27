@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.6
+ * @version 1.0.7
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,22 +14,15 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.6",
+			"version": "1.0.7",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-      "progress": {
-        "Stats": "so far finished the main stats, now i am going to move onto displaying game stats :)"
-      },
-        "added": {
-          "Pet Stats": "Option to view lobby pet stats",
-          "Guild Members": "you now have the option to view a list of guild members with daily gexp added",
-        },
-        "fixed": {
-          "Discord Crashing": "a few more multiple bug fixes, report on github if u find any",
-          "Re-aligned": "aligned a few things to be more `CENTERED`"
-        }
+      "improved": {
+        "Resizeable Popover": "you're able to change the popover size through plugin settings now",
+        "Toggle Guild Members": "you now have the option to toggle guild members"
+      }
 		}
 	};
 
@@ -123,7 +116,7 @@
               insertCss(`
                   @import url('https://fontlibrary.org//face/minecraftia');
                   #statsify-btn{position: relative; height: 24px;width: auto;-webkit-box-flex: 0;-ms-flex: 0 0 auto;flex: 0 0 auto;margin: 11px 4px 9px 2px;cursor:pointer;}
-                  #statsify{position:fixed;top:80px;right:16px;bottom:75px;width:900px;z-index:99;color:var(--text-normal);background-color:var(--background-secondary);padding-top: 16px;box-shadow:var(--elevation-stroke),var(--elevation-high);border-radius:8px;display:flex;flex-direction:column}
+                  #statsify{position:fixed;top:80px;right:16px;bottom:75px;width:900px;z-index:99;color:var(--text-normal);background-color:var(--background-secondary);padding-top: 16px;box-shadow:var(--elevation-stroke),var(--elevation-high);border-radius:8px;display:flex;flex-direction:column;transform-origin: bottom right;}
                   #statsify .header{padding:12px 16px;background-color:var(--background-tertiary);color:var(--text-muted)}
                   #statsify .navButtonActive-1MkytQ44444 {background-color: #202225;color: #fff;}
                   #statsify .topheader{font-weight: 900; padding: 7px 0px 0px 0px; font-size: 25px; cursor: default;}
@@ -217,6 +210,7 @@
                   #gmtable td, th {border: 4px solid #0000;;text-align: center;padding: 8px;font-size: 15px;white-space: nowrap;}
                   #gmtable th {background-color:#147ccc;font-weight:bold;}
                   #gmtable tr:nth-child(even) {background-color: #4f545c61;}
+                  .statsifyresize {cursor:help;height: 15px;left: -2px;position: absolute;top: 0px;width: 15px;z-index: 2;}
               `);
 
 
@@ -231,6 +225,7 @@
         // popover menu
        const popover = createElm(`
         <div id="statsify" style="display:none;">
+        <div title="you can change the window size through settings" class="statsifyresize"></div>
     <nav class="nav-7UD0KD">
        <div class="navList-2UtuhC222222" role="tablist" aria-label="Expression Picker">
           <div class="navItem-3Wp_oJ" role="tab" id="gif-picker-tab" aria-controls="gif-picker-tab-panel" aria-selected="true">
@@ -277,6 +272,8 @@
         document.body.appendChild(popover);
 
             var apiKey = {};
+            var popsize = {};
+            var settings = {};
 
 
             var colors = {
@@ -409,8 +406,17 @@
                 
                 
                 onLoad () {
+                  this.defaults = {
+                    popsize: {
+                      size:				{value: 100,				description: "Popover window size"}
+                    },
+                    settings: {
+                      guildmember:      {value: false,        name: "Display Guild Members"}
+                    }
+                  };
                     apiKey = BDFDB.DataUtils.load(this, "api");
-
+                    popsize = BDFDB.DataUtils.get(this, "popsize");
+                    settings = BDFDB.DataUtils.get(this, "settings");
                     
                     
 
@@ -421,13 +427,7 @@
 
                     document.getElementById("back-arrow-icon").onclick = this.backArrow;
 
-
-
-                    this.patchedModules = {
-                        after: {
-                            
-                        }
-                    };
+                    this.popoverSize()
                 }
                 
                 onStart () {
@@ -453,10 +453,18 @@
 					collapseStates: collapseStates,
 					children: _ => {
 						let settingsItems = [];
-				
-						for (let key in this.defaults.selections) settingsItems.push();
 						
-						
+						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
+              title: "Settings",
+              collapseStates: collapseStates,
+              children: Object.keys(settings).filter(n => n && n != "_all").map(key => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsSaveItem, {
+                type: "Switch",
+                plugin: this,
+                keys: ["settings", key],
+                label: this.defaults.settings[key].name,
+                value: settings[key]
+              }))
+            }));
 						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
 							title: "api key",
 							collapseStates: collapseStates,
@@ -475,18 +483,31 @@
 										})
 									}),
 									BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Button, {
-                                    
 										onClick: () => {
                     BDFDB.DataUtils.save(apiKey, this, "api");
                     this.getKey();
                                             
 										},
-                                        children: BDFDB.LanguageUtils.LanguageStrings.SAVE
-									})
-                                    
+                  children: BDFDB.LanguageUtils.LanguageStrings.SAVE
+									}),
 
 								]
 							})
+						}));
+						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
+							title: "popover window size",
+							collapseStates: collapseStates,
+							children: Object.keys(popsize).map(key => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsSaveItem, {
+								type: "Slider",
+                digits: 0,
+								plugin: this,
+								keys: ["popsize", key],
+								basis: "100%",
+                defaultValue: popsize[key],
+                  onValueRender: value => {
+                  return value + "%";
+                  }
+							}))
 						}));
 						
 						return settingsItems;
@@ -498,11 +519,15 @@
 				if (this.SettingsUpdated) {
 					delete this.SettingsUpdated;
 					this.forceUpdateAll();
+          this.popoverSize()
 				}
 			}
 
             forceUpdateAll () {
+              popsize = BDFDB.DataUtils.get(this, "popsize");
+              settings = BDFDB.DataUtils.get(this, "settings");
                 }
+      
 
 			getKey () {
 				BDFDB.LibraryRequires.request(`https://api.hypixel.net/key?key=${apiKey}`, (err, res ) => {
@@ -634,6 +659,9 @@
             const textbar = document.querySelector('[class^=buttons-3JBrkn]');
             if (textbar) textbar.appendChild(buttonHTML);
             buttonHTML.onclick = () => {
+              if (popsize.size === 0) {
+                BDFDB.NotificationUtils.toast("Popover window size is set at 0%, nothing is going to be displayed", {type: "danger"});
+              }
                 buttonHTML.style.color = null;
                 if (popover.style.display !== 'none') {
                     popover.style.display = 'none';
@@ -673,6 +701,26 @@
             if (!e.addedNodes.length || !e.addedNodes[0] || !e.addedNodes[0].querySelector) return;
             const textbar = e.addedNodes[0].querySelector('[class^=buttons-3JBrkn]');
             if (textbar) this.addButton(textbar);
+        }
+
+        numberParse(string) {
+          let number = string
+          let regex = /\b([0-9])\b/gm
+          let replace = `0$1`
+
+          return number.toString().replace(regex, replace)
+        }
+
+        popoverSize() {
+          if (popover) {
+            if (popsize.size === 100){
+            popover.style.transform = `scale(1)`
+            }
+            else {
+              popover.style.transform = `scale(.${this.numberParse(popsize.size)})`
+            }
+          }
+          else null
         }
 
 
@@ -942,7 +990,7 @@
             <input class="input56" type="checkbox" id="chck50">
             <label class="tab-label" for="chck50">Guild Members</label>
             <div class="tab-content" style="background-color: #36393f;">
-            <table class="gmtable" id="gmtable">
+            ${settings.guildmember === true ? `<table class="gmtable" id="gmtable">
               <tr>
                   <th>Username</th>
                   <th>Rank</th>
@@ -952,7 +1000,7 @@
               </tr>
               <tbody id="gmtbody">
               </tbody>
-            </table>
+            </table>` : `<div class="content-center"><a><span style="font-weight: bold;font-size: 20px;color: #FF5555;">you have this option disabled, go to plugin settings to toggle it</span></a></div>`}
             </div>
             </div>
             </div>` : `<div class="content-center"><a><span style="font-family:Minecraftia;font-size: 20px;color: #FF5555;">${displayName} is not in a guild</span></a></div>`}`
@@ -1079,6 +1127,8 @@
               this.loadGuildTab()
               this.petStats()
               this.todayDate()
+
+              console.log(settings.guildmember)
 
 
 
@@ -1308,7 +1358,7 @@
               this.status()
               this.totemLoader()
               this.ptableLoader()
-              this.loadGuildMembers()
+              if (document.getElementById('gmtbody')) {this.loadGuildMembers()}
 
 
               if (hyApi?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
