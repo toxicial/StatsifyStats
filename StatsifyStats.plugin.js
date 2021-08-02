@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.7
+ * @version 1.0.8
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,14 +14,22 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.7",
+			"version": "1.0.8",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
       "improved": {
-        "Resizeable Popover": "you're able to change the popover size through plugin settings now",
-        "Toggle Guild Members": "you now have the option to toggle guild members"
+        "Guild Member": "You are now able to click on a player thats in a guild and search them",
+        "Guild Cacheing": "If your previous player search is in the same guild as your next search it'll load the guild members list without re-calling the api thus increasing the speed",
+      },
+      "fixed": {
+        "Button": "Button disappears after edting a message",
+        "Search Bar": "Search bar not working after updating plugin, or keeping discord on for a long period of time",
+        "Crashing": "Fixed some bug crashing issues, report on github if any found"
+      },
+      "added": {
+        "Arcade": "Arcade stats is now here",
       }
 		}
 	};
@@ -211,6 +219,22 @@
                   #gmtable th {background-color:#147ccc;font-weight:bold;}
                   #gmtable tr:nth-child(even) {background-color: #4f545c61;}
                   .statsifyresize {cursor:help;height: 15px;left: -2px;position: absolute;top: 0px;width: 15px;z-index: 2;}
+                  .arcade_table {margin: 0 auto;display: grid;grid-template-columns: repeat(auto-fit, minmax(1rem, 396px));align-items: center;column-gap: 2rem;row-gap: 2rem;max-width: 70em;justify-content:center;padding-top:20px;}
+                  .arcade_package {border-radius: 15px;background: #36393f;box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);overflow: hidden;position: relative;color: #dcddde;height: 220px;display:grid;justify-content:center;text-align:center;padding-bottom:10px;}
+                  .arcade_top{font-family: 'MinecraftiaRegular'; font-size: 25px;margin-bottom:.5em;}
+                  .arcade_header{font-weight:bold;margin-top:10px;font-size: 17px;display:flex;justify-content:center;margin-bottom: 10px;}
+                  .arcade_text{font-weight:bold;font-size: 15px;color: #dcddde;}
+                  .arcade_stat{font-size: 15px;color: #dcddde;}
+                  .arcade_div{margin-bottom:1px;}
+                  .as_div{display: grid;grid-template-columns: 198px 200px;margin-bottom:3px;}
+                  .as_middle{display: grid;justify-content:center;margin-top:5px;}
+                  .zombie-table{position:absolute;right: 10px;background: #0000ff00;color: #dcddde;transform: scale(1.5);top: 8px;}
+                  .zombie-table:hover{transform: scale(1.6)}
+                  .zomtable {border-collapse: collapse;width: 100%;margin-top: 20px;}
+                  #zomtable td, th {border: 4px solid #0000;;text-align: center;padding: 8px;font-size: 15px;white-space: nowrap;}
+                  #zomtable th {background-color:#147ccc;font-weight:bold;}
+                  #zomtable tr:nth-child(even) {background-color: #4f545c61;}
+
               `);
 
 
@@ -250,7 +274,7 @@
        <div class="flex-1xMQg5 flex-1O1GKY horizontal-1ae9ci horizontal-2EEEnY flex-1O1GKY directionRow-3v3tfG justifyStart-2NDFzi alignCenter-1dQNNs noWrap-3jynv6" style="flex: 1 1 auto;">
           <div class="searchBar--fTZYa container-cMG81i medium-1LLV3p">
              <div class="inner-2P4tQO">
-                <input spellcheck="false" id="searchInput" class="input-3Xdcic" placeholder="Username/UUID" value="">
+                <input maxlength="36" spellcheck="false" id="searchInput" class="input-3Xdcic" placeholder="Username/UUID" value="">
                 <div class="iconLayout-3OgqU3 medium-1LLV3p" tabindex="-1" role="button">
                    <div class="iconContainer-2wXvy1">
                       <svg class="icon-1S6UIr visible-3bFCH-" aria-label="Search" aria-hidden="false" width="24" height="24" viewBox="0 0 24 24">
@@ -274,6 +298,7 @@
             var apiKey = {};
             var popsize = {};
             var settings = {};
+            var gcache = {};
 
 
             var colors = {
@@ -398,11 +423,11 @@
                 "100": 30000,
                 "101": 32000
               }
-     
-            
+
 
             return class StatsifyStats extends Plugin {
 
+              
                 
                 
                 onLoad () {
@@ -411,12 +436,14 @@
                       size:				{value: 100,				description: "Popover window size"}
                     },
                     settings: {
-                      guildmember:      {value: false,        name: "Display Guild Members"}
+                      guildmember:      {value: false,        name: "Display Guild Members"},
+                      gexp:             {value: false,        name: "Display Weekly Gexp Instead of Daily"}
                     }
                   };
                     apiKey = BDFDB.DataUtils.load(this, "api");
                     popsize = BDFDB.DataUtils.get(this, "popsize");
                     settings = BDFDB.DataUtils.get(this, "settings");
+                    gcache = BDFDB.DataUtils.load(this, "guildcache");
                     
                     
 
@@ -442,10 +469,10 @@
                 onStop () {
                     const button = document.getElementById("statsify-btn");
                     if (button) button.remove();
+                    if (popover) popover.remove();
                     BDFDB.PatchUtils.forceAllUpdates(this);
                 }
-
-                
+       
     getSettingsPanel (collapseStates = {}) {
         
 				let settingsPanel;
@@ -457,13 +484,30 @@
 						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
               title: "Settings",
               collapseStates: collapseStates,
-              children: Object.keys(settings).filter(n => n && n != "_all").map(key => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsSaveItem, {
-                type: "Switch",
-                plugin: this,
-                keys: ["settings", key],
-                label: this.defaults.settings[key].name,
-                value: settings[key]
-              }))
+              children:	BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
+                title: "Guild Members",
+                collapseStates: collapseStates,
+                children: [Object.keys(settings).filter(n => n && n != "_all").map(key => BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.SettingsSaveItem, {
+                    type: "Switch",
+                    plugin: this,
+                    keys: ["settings", key],
+                    label: this.defaults.settings[key].name,
+                    value: settings[key]
+                  })),
+
+                  BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.Button, {
+                    color: BDFDB.LibraryComponents.Button.Colors.RED,
+                    style: {marginLeft: 175, marginTop: 20, padding: 20},
+                    onClick: _ => {
+                      BDFDB.ModalUtils.confirm(this, "Are you sure you want to remove all guild cache?", _ => {
+                        BDFDB.DataUtils.remove(this, "guildcache");
+                        BDFDB.PluginUtils.refreshSettingsPanel(this, settingsPanel, collapseStates);
+                      });
+                    },
+                    children: "Clear All Guild Cache"
+                  })
+                ]    
+              })
             }));
 						settingsItems.push(BDFDB.ReactUtils.createElement(BDFDB.LibraryComponents.CollapseContainer, {
 							title: "api key",
@@ -526,6 +570,17 @@
             forceUpdateAll () {
               popsize = BDFDB.DataUtils.get(this, "popsize");
               settings = BDFDB.DataUtils.get(this, "settings");
+              gcache = BDFDB.DataUtils.load(this, "guildcache");
+
+              const searchField = document.getElementById("searchInput")
+              searchField.addEventListener('keyup', event => {
+              if (event.keyCode === 13) this.getUUID()
+              })
+
+              document.getElementById("back-arrow-icon").onclick = this.backArrow;
+
+              const form = document.querySelector("form");
+              if (form) this.addButton(form);
                 }
       
 
@@ -553,6 +608,11 @@
         getUUID() {
             const form = document.getElementById("searchInput")
             var username = form.value
+            if (username.length >= 32) {
+              form.value = ""
+              uuid = username
+              if (uuid) {this.getPlayer(uuid)}
+            }
             if (!username || username.length > 16) return;
             form.value = ""
             BDFDB.LibraryRequires.request(`https://api.mojang.com/users/profiles/minecraft/${username}`, (err, res) => {
@@ -561,28 +621,30 @@
                 uuid = data.id
                 user = username
                 if (uuid) {
-                  this.getPlayer()
+                  this.getPlayer(uuid)
                 }
         })
     }
 
 
-        getPlayer() {
-            BDFDB.LibraryRequires.request(`https://api.hypixel.net/player?key=${apiKey}&uuid=${uuid}`, (err, res) => {
+        getPlayer(tuuid) {
+            BDFDB.LibraryRequires.request(`https://api.hypixel.net/player?key=${apiKey}&uuid=${tuuid}`, (err, res) => {
               var body = JSON.parse(res.body)
               if (res.statusCode == 403) {
                 BDFDB.NotificationUtils.toast("Invalid Api Key", {type: "danger"}); 
                 document.getElementById("bodyResult").innerHTML = '';
               }
-              else if (res.statusCode == 429) {
+              else if (res.statusCode == 429 || res.statusCode == 401) {
                 BDFDB.NotificationUtils.toast("Requesting Too Much", {type: "danger"});
-                document.getElementById("bodyResult").innerHTML = '';
               }
               else if (body.player == null) {
                 BDFDB.NotificationUtils.toast("This user has not logged on to Hypixel", {type: "danger"});
                 document.getElementById("bodyResult").innerHTML = '';
               }
                   else if (res.statusCode == 200) {
+                  uuid = tuuid
+
+                  document.getElementById("bodyResult").innerHTML = ''
                   this.statLoader()
                   const body = JSON.parse(res.body);
                   player = body?.player
@@ -626,8 +688,9 @@
                   BDFDB.NotificationUtils.toast("An error occurred with HyApi, please report on github if not fixed", {type: "danger"});
                   document.getElementById("bodyResult").innerHTML = '';
                 }
-                  else BDFDB.NotificationUtils.toast("HyApi is Down", {type: "danger"});
+                  else {BDFDB.NotificationUtils.toast("HyApi is Down", {type: "danger"});
                   document.getElementById("bodyResult").innerHTML = '';
+              }
         })
         }
 
@@ -640,6 +703,11 @@
                   const getGuildTagColor = color => ({ "DARK_AQUA": { hex: "#00AAAA", mc: "§3" }, "DARK_GREEN": { hex: "#00AA00", mc: "§2" }, "YELLOW": { hex: "#FFFF55", mc: "§e" }, "GOLD": { hex: "#FFAA00", mc: "§6" } }[color] || { hex: "#AAAAAA", mc: "§7" })
 
                   body_guild_mcColor = getGuildTagColor(guildBody.guild.tagColor);
+
+                  if (gcache[uuid]?.id !== guild?.guild?._id){
+                    BDFDB.DataUtils.remove(this, "guildcache")
+                    this.forceUpdateAll();
+                  }
                 }
                  if (guild) this.getFriend()
             })
@@ -656,7 +724,7 @@
 
 
         addButton() {
-            const textbar = document.querySelector('[class^=buttons-3JBrkn]');
+            const textbar = document.querySelector('form [class^=buttons-3JBrkn]');
             if (textbar) textbar.appendChild(buttonHTML);
             buttonHTML.onclick = () => {
               if (popsize.size === 0) {
@@ -680,7 +748,7 @@
 
         statLoader() {
           let temp = document.getElementById("bodyResult")
-          temp.innerHTML = `<div class="stat-loader content-center"><img class="stat-loading" src="https://cdn.discordapp.com/attachments/809515941419155526/865340849595744286/statsify.gif">
+          temp.innerHTML = `<div class="stat-loader content-center"><img class="stat-loading" src="https://cdn.discordapp.com/attachments/803669565120577556/870732561008164924/statsify.gif">
           </div>`
         }
 
@@ -699,7 +767,7 @@
 
         observer(e) {
             if (!e.addedNodes.length || !e.addedNodes[0] || !e.addedNodes[0].querySelector) return;
-            const textbar = e.addedNodes[0].querySelector('[class^=buttons-3JBrkn]');
+            const textbar = e.addedNodes[0].querySelector('form [class^=buttons-3JBrkn]');
             if (textbar) this.addButton(textbar);
         }
 
@@ -709,6 +777,14 @@
           let replace = `0$1`
 
           return number.toString().replace(regex, replace)
+        }
+
+        precentParse(string) {
+          let number = string.toString()
+          let regex = /.+\.|\./g
+          let replace = ``
+
+          return number.replace(regex, replace)
         }
 
         popoverSize() {
@@ -828,14 +904,27 @@
             const body = await data?.player
             if (response.status == 200) {
 
+              let values =  {guuid: `${tempuuid}`};
+
               var trank = this.getRank(body)
               var tplusColor = this.getPlusColor(trank, body.rankPlusColor)
               var tformattedRank = this.getFormattedRank(trank, tplusColor.mc)
 
               var lastLogout = body.lastLogout
 
-              const ign = `${tformattedRank}${body.displayname}`
-              var tempDisplayName = this.mcColorParser(ign)
+              const rawign = `${tformattedRank}${body.displayname}`
+              var tempDisplayName = this.mcColorParser(rawign)
+
+              gcache[values.guuid] = {
+                id: guild?.guild?._id,
+                rawname: rawign,
+                lastlogout: lastLogout
+              }
+              
+                if (gcache[tempuuid] !== tempuuid) {
+                  BDFDB.DataUtils.save(gcache, this, "guildcache");
+                  this.forceUpdateAll();
+              }
 
             return { tempDisplayName, lastLogout }
             }
@@ -913,6 +1002,20 @@
           return dguild[xp]?.expHistory?.[today]?.toLocaleString()
           }
 
+          getWeeklyGuildxp(guuid) {
+            let ign = guuid || null
+            let dguild = guild?.guild?.members
+            let exp = 0
+
+            for (var xp in dguild ) {
+              if (dguild[xp]?.uuid === ign)
+              break;
+          }
+          var rawexp = Object.values(dguild[xp]?.expHistory)
+          rawexp.forEach(value => {exp += value})
+            return exp.toLocaleString()
+          }
+
           getGuildRank(guuid) {
           let ign = guuid || null
           let dguild = guild?.guild?.members
@@ -935,30 +1038,49 @@
            return new Date(dguild[xp]?.joined)?.toDateString()
           }
 
+
+
           loadGuildMembers = async () => {
             const ranks = Object.fromEntries(guild?.guild?.ranks.map(rank => [rank?.name.toLowerCase(), rank]));
             const members = guild?.guild?.members.sort((a, b) => {
               const aPriority = ranks[a.rank.toLowerCase()]?.priority
               const bPriority = ranks[b.rank.toLowerCase()]?.priority
-            
-              if (!aPriority && !bPriority) {
-                return 7
-              }
-            
+
+              if (!aPriority && !bPriority) {return 7}
               return (bPriority ?? 7) - (aPriority ?? 7)})
+
             var gmtable = document.getElementById(`gmtbody`)
             let dguild = await members
-            for (var table in dguild) {
-              let temp = await this.getTempDisplayName(dguild[table]?.uuid)
 
-              var row = `<tr>
-                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${temp.tempDisplayName || `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</td1>
+            for (var table in dguild) {
+              var cache = gcache[dguild[table]?.uuid]
+              let id = guild?.guild?._id
+
+              if (cache?.rawname != undefined || cache?.lastlogout != undefined) {
+              let row = `<tr>
+                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${`<span style="cursor:pointer;"title="Search This Player" id="${dguild[table]?.uuid}">${this.mcColorParser(cache?.rawname) ?? `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</span>`}</td1>
                 <td>${await this.getGuildRank(dguild[table]?.uuid) || ""}</td>
-                <td>${await this.getDailyGuildxp(dguild[table]?.uuid) || ""}</td>
+                <td>${settings.gexp === true ? await this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
                 <td>${await this.getGuildJoined(dguild[table]?.uuid) || ""}</td>
-                <td>${new Date(temp.lastLogout).toLocaleString() || ""}</td>
+                <td>${new Date(await cache?.lastlogout).toLocaleString() || "error"}</td>
               </tr>`
               gmtable.innerHTML += row
+              } else {
+                let temp = await this.getTempDisplayName(dguild[table]?.uuid)
+                let row = `<tr>
+                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${`<span id="${dguild[table]?.uuid}">${cache?.rawname != undefined ? this.mcColorParser(cache?.rawname) : await temp.tempDisplayName ?? `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</span>`}</td1>
+                <td>${await this.getGuildRank(dguild[table]?.uuid) || ""}</td>
+                <td>${settings.gexp === true ? await this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
+                <td>${await this.getGuildJoined(dguild[table]?.uuid) || ""}</td>
+                <td>${cache?.rawname != undefined ? new Date(await cache?.lastlogout).toLocaleString() || "error" : new Date(await temp.lastLogout).toLocaleString()}</td>
+              </tr>`
+              gmtable.innerHTML += row
+              }
+
+            }
+            for (let table in dguild) {
+              var element = document.getElementById(`${dguild[table]?.uuid}`)
+              element.addEventListener("click", () => this.getPlayer(dguild[table]?.uuid))
             }
           }
           
@@ -994,7 +1116,7 @@
               <tr>
                   <th>Username</th>
                   <th>Rank</th>
-                  <th>Daily GEXP</th>
+                  <th>${settings.gexp === true ? "Weekly GEXP" : "Daily GEXP"}</th>
                   <th>Joined</th>
                   <th>Last Login</th>
               </tr>
@@ -1112,6 +1234,17 @@
             </div>` : `<div class="content-center"><a><span style="font-family:Minecraftia;font-size: 15px;color: #FF5555;">${displayName} does not have any pets</span></a></div>`}`
           }
 
+          showZomTable() {
+              let t = document.getElementById("ztable");
+            if (t) {
+              if (t.style.display === "none") {
+                t.style.display = "";
+              } else {
+                t.style.display = "none";
+              }
+            }
+          }
+
 
 
         popoverUpdater() {    
@@ -1127,10 +1260,6 @@
               this.loadGuildTab()
               this.petStats()
               this.todayDate()
-
-              console.log(settings.guildmember)
-
-
 
               tempbres.innerHTML = `<div>
                 
@@ -1207,14 +1336,371 @@
                   <div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck4">
-                  <label class="tab-label" for="chck4">Item 3</label>
+                  <label class="tab-label" for="chck4">Arcade</label>
                   <div class="tab-content">
-                    text
+                  <div><a class="content-center"> <h1 class="gold shadow arcade_top">Coins<span style="margin-left:2px;font-size: 20px;" class="arcade_top white shadow">:</span><span style="margin-left:5px;font-size: 20px;"class="arcade_top shadow white">${(player?.stats?.Arcade?.coins || 0).toLocaleString()}</span></h1> </a></div>
+                  <div class="arcade_table">
+                  <div class="arcade_package">
+                    <div><h1 class="arcade_header">Galaxy Wars</h1></div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_kills || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Rebel Kills</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_rebel_kills || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Deaths</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_deaths || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Empire Kills</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_empire_kills || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">KDR</span><span class="arcade_stat"><br>${this.ratio(player?.stats?.Arcade?.sw_kills || 0, player?.stats?.Arcade?.sw_deaths || 0)}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Weekly Kills</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_weekly_kills_b || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Shots Fired</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_shots_fired || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Monthly Kills</span><span class="arcade_stat"><br>${(player?.stats?.Arcade?.sw_monthly_kills_b || 0).toLocaleString()}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Farm Hunt</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_farm_hunt || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Poop Collected</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.poop_collected || 0).toLocaleString()}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Grinch Simulator</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_grinch_simulator_v2 || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Gifts</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.gifts_grinch_simulator_v2 || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Tourney Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_grinch_simulator_v2_tourney || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Tourney Loses</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.losses_grinch_simulator_v2_tourney || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Tourney WLR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.wins_grinch_simulator_v2_tourney || 0, player?.stats?.Arcade?.losses_grinch_simulator_v2_tourney || 0)}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Tourney Gifts</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.gifts_grinch_simulator_v2_tourney || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Bounty Hunters</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kills_oneinthequiver || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Bounty Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.bounty_kills_oneinthequiver || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">KDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.kills_oneinthequiver || 0, player?.stats?.Arcade?.deaths_oneinthequiver || 0)}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Bounty KDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.bounty_kills_oneinthequiver || 0, player?.stats?.Arcade?.deaths_oneinthequiver || 0)}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.deaths_oneinthequiver || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Deaths</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_oneinthequiver || 0).toLocaleString()}</span></a></div>
+                    </div>
+                  </div>
+                  </div>
+                  <div class="arcade_table">
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Blocking Dead</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_dayone || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kills_dayone || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">HeadShots</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.headshots_dayone || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Melee Weapon</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.melee_weapon || "").toLocaleString().toLowerCase()}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Soccer</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_soccer || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Goals</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.goals_soccer || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Kicks</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kicks_soccer || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Power Kicks</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.powerkicks_soccer || 0).toLocaleString()}</span></a></div>
+                    </div>
                   </div>
                 </div>
+                <div class="arcade_table">
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Mini Walls</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_mini_walls || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Selected Kit</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.miniwalls_activeKit || "solider").toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kills_mini_walls || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Final Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.final_kills_mini_walls || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">KDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.kills_mini_walls || 0, player?.stats?.Arcade?.deaths_mini_walls || 0)}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">FKDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.final_kills_mini_walls || 0, player?.stats?.Arcade?.deaths_mini_walls || 0)}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wither Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wither_kills_mini_walls || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Wither Damage</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wither_damage_mini_walls || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Deaths</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.deaths_mini_walls || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Arrows Shot</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.arrows_shot_mini_walls || 0).toLocaleString()}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Hole in the Wall</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_hole_in_the_wall || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Rounds</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.rounds_hole_in_the_wall || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Loses</span><br><span class="arcade_stat">${((player?.stats?.Arcade?.rounds_hole_in_the_wall || 0) - (player?.stats?.Arcade?.wins_hole_in_the_wall || 0)).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">WLR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.wins_hole_in_the_wall || 0, player?.stats?.Arcade?.rounds_hole_in_the_wall || 0)}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Hypixel Says</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_simon_says || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Rounds</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.rounds_simon_says || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Loses</span><br><span class="arcade_stat">${((player?.stats?.Arcade?.rounds_simon_says || 0) - (player?.stats?.Arcade?.wins_simon_says || 0)).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">WLR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.wins_simon_says || 0, player?.stats?.Arcade?.rounds_simon_says || 0 - player?.stats?.Arcade?.wins_simon_says || 0)}</span></a></div>
+                    </div>
+                  </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Throwout</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_throw_out || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kills_throw_out || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Deaths</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.deaths_throw_out || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">KDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.kills_throw_out || 0, player?.stats?.Arcade?.deaths_throw_out || 0)}</span></a></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arcade_table">
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Dragon Wars</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_dragonwars2 || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.kills_dragonwars2 || 0).toLocaleString()}</span></a></div>
+                    </div>
+                </div>
+                    <div class="arcade_package">
+                    <h1 class="arcade_header">Creeper Attack</h1>
+                    <div class="as_middle">
+                    <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.max_wave || 0).toLocaleString()}</span></a></div>
+                    </div>
+                </div>
+                </div>
+                  <div class="arcade_table">
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Party Games</h1>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${((player?.stats?.Arcade?.wins_party || 0) + (player?.stats?.Arcade?.wins_party_2 || 0) + (player?.stats?.Arcade?.wins_party_3 || 0)).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Party Wins 1</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_party || 0).toLocaleString()}</span></a></div>
+                    </div>
+                    <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Party Wins 2</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_party_2 || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Party Wins 3</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_party_3 || 0).toLocaleString()}</span></a></div>
+                    </div>
+                </div>
+                  <div class="arcade_package">
+                    <h1 class="arcade_header">Ender Spleef</h1>
+                    <div class="as_middle">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_ender || 0).toLocaleString()}</span></a></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="arcade_table">
+                <div class="arcade_package">
+                  <h1 class="arcade_header">Zombies</h1>
+                  <button id="zombies_table" title="Display Zombies Stats Table" class="zombie-table">&#10066;</button>
+                  <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Wins</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.wins_zombies || 0).toLocaleString()}</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Best Round</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.best_round_zombies || 0).toLocaleString()}</span></a></div>
+                  </div>
+                  <div class="as_div">
+                  <div class="arcade_div"><a><span class="arcade_text">Kills</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.zombie_kills_zombies || 0).toLocaleString()}</span></a></div>
+                  <div class="arcade_div"><a><span class="arcade_text">Deaths</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.deaths_zombies || 0).toLocaleString()}</span></a></div>
+                  </div>
+                  <div class="as_div">
+                  <div class="arcade_div"><a><span class="arcade_text">KDR</span><br><span class="arcade_stat">${this.ratio(player?.stats?.Arcade?.zombie_kills_zombies || 0, player?.stats?.Arcade?.deaths_zombies || 0)}</span></a></div>
+                  <div class="arcade_div"><a><span class="arcade_text">Doors Opened</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.doors_opened_zombies || 0).toLocaleString()}</span></a></div>
+                  </div>
+                  <div class="as_div">
+                  <div class="arcade_div"><a><span class="arcade_text">Rounds Survived</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.total_rounds_survived_zombies || 0).toLocaleString()}</span></a></div>
+                  <div class="arcade_div"><a><span class="arcade_text">Head Shots</span><br><span class="arcade_stat">${(player?.stats?.Arcade?.headshots_zombies || 0).toLocaleString()}</span></a></div>
+                  </div>
+                  <div class="as_div">
+                    <div class="arcade_div"><a><span class="arcade_text">Accuracy</span><br><span class="arcade_stat">${this.precentParse(this.ratio(player?.stats?.Arcade?.bullets_hit_zombies || 0, player?.stats?.Arcade?.bullets_shot_zombies || 0))}%</span></a></div>
+                    <div class="arcade_div"><a><span class="arcade_text">Head Shot Accuracy</span><br><span class="arcade_stat">${this.precentParse(this.ratio(player?.stats?.Arcade?.headshots_zombies || 0, player?.stats?.Arcade?.bullets_hit_zombies || 0))}%</span></a></div>
+                  </div>
+                  </div>
+              </div>
+              <div id="ztable" style="display:none;">
+              <table class="zomtable" id="zomtable">
+              <tr>
+                  <th>Map</th>
+                  <th>Downs</th>
+                  <th>Revives</th>
+                  <th>Doors Opened</th>
+                  <th>Windows Repaired</th>
+                  <th>Zombies Killed</th>
+                  <th>Deaths</th>
+                  <th>Best Round</th>
+              </tr>
+              <tbody>
+                <tr>
+                <td>Alien Arcadium</td>
+                <td>${(player?.stats?.Arcade?.times_knocked_down_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.players_revived_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.doors_opened_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.windows_repaired_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.zombie_kills_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.deaths_zombies_alienarcadium || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.best_round_zombies_alienarcadium || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                <td>Bad Blood</td>
+                <td>${(player?.stats?.Arcade?.times_knocked_down_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.players_revived_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.doors_opened_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.windows_repaired_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.zombie_kills_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.deaths_zombies_badblood || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.best_round_zombies_badblood || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                <td>Dead End</td>
+                <td>${(player?.stats?.Arcade?.times_knocked_down_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.players_revived_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.doors_opened_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.windows_repaired_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.zombie_kills_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.deaths_zombies_deadend || 0).toLocaleString()}</td>
+                <td>${(player?.stats?.Arcade?.best_round_zombies_deadend || 0).toLocaleString()}</td>
+                </tr>
+              </tbody>
+              </table>
+              <table class="zomtable" id="zomtable">
+              <tr>
+                  <th>Type</th>
+                  <th>Kills</th>
+              </tr>
+              <tbody>
+                <tr>
+                    <td>Basic</td>
+                    <td>${(player?.stats?.Arcade?.basic_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Blaze</td>
+                    <td>${(player?.stats?.Arcade?.blaze_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Blob</td>
+                    <td>${(player?.stats?.Arcade?.blob_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Clown</td>
+                    <td>${(player?.stats?.Arcade?.clown_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Empowered</td>
+                    <td>${(player?.stats?.Arcade?.empowered_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Ender</td>
+                    <td>${(player?.stats?.Arcade?.ender_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Ender Mite</td>
+                    <td>${(player?.stats?.Arcade?.endermite_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Fire</td>
+                    <td>${(player?.stats?.Arcade?.fire_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Guardian</td>
+                    <td>${(player?.stats?.Arcade?.guardian_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Magma</td>
+                    <td>${(player?.stats?.Arcade?.magma_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Magma Cube</td>
+                    <td>${(player?.stats?.Arcade?.magma_cube_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Pig Zombie</td>
+                    <td>${(player?.stats?.Arcade?.pig_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Rainbow</td>
+                  <td>${(player?.stats?.Arcade?.rainbow_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Sentinel</td>
+                    <td>${(player?.stats?.Arcade?.sentinel_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Skelefish</td>
+                    <td>${(player?.stats?.Arcade?.skelefish_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Skeleton</td>
+                    <td>${(player?.stats?.Arcade?.skeleton_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Slime</td>
+                    <td>${(player?.stats?.Arcade?.slime_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Slime Zombie</td>
+                    <td>${(player?.stats?.Arcade?.slime_zombie_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Space Blaster</td>
+                    <td>${(player?.stats?.Arcade?.space_blaster_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Space Grunt</td>
+                    <td>${(player?.stats?.Arcade?.space_grunt_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>TNT Baby</td>
+                    <td>${(player?.stats?.Arcade?.tnt_baby_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Witch</td>
+                    <td>${(player?.stats?.Arcade?.witch_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Wither Skeleton</td>
+                    <td>${(player?.stats?.Arcade?.wither_skeleton_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Wither Zombie</td>
+                    <td>${(player?.stats?.Arcade?.wither_zombie_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Wolf</td>
+                    <td>${(player?.stats?.Arcade?.wolf_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Worm</td>
+                    <td>${(player?.stats?.Arcade?.worm_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+                <tr>
+                    <td>Worm Small</td>
+                    <td>${(player?.stats?.Arcade?.worm_small_zombie_kills_zombies || 0).toLocaleString()}</td>
+                </tr>
+              </tbody>
+              </table>
+              </div>
+              </div>
+                    </div>
+                  </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck5">
-                  <label class="tab-label" for="chck5">Item 3</label>
+                  <label class="tab-label" for="chck5">BedWars</label>
                   <div class="tab-content">
                     text
                   </div>
@@ -1358,9 +1844,10 @@
               this.status()
               this.totemLoader()
               this.ptableLoader()
+              
+              document.getElementById("zombies_table").addEventListener("click", this.showZomTable);
+
               if (document.getElementById('gmtbody')) {this.loadGuildMembers()}
-
-
               if (hyApi?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
         }
 
