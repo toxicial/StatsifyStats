@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.8
+ * @version 1.0.9
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,22 +14,17 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.8",
+			"version": "1.0.9",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-      "improved": {
-        "Guild Member": "You are now able to click on a player thats in a guild and search them",
-        "Guild Cacheing": "If your previous player search is in the same guild as your next search it'll load the guild members list without re-calling the api thus increasing the speed",
-      },
       "fixed": {
-        "Button": "Button disappears after edting a message",
-        "Search Bar": "Search bar not working after updating plugin, or keeping discord on for a long period of time",
-        "Crashing": "Fixed some bug crashing issues, report on github if any found"
+        "Popover": "Popover not opening after turning on and off the plugin",
+        "Guild Members": "Error in console when you search a player before guild member is finished loading"
       },
       "added": {
-        "Arcade": "Arcade stats is now here",
+        "Bedwars": "Bedwars stats are now available",
       }
 		}
 	};
@@ -80,6 +75,7 @@
 			template.content.firstElementChild.querySelector("a").addEventListener("click", this.downloadLibrary);
 			return template.content.firstElementChild;
 		}    
+    
         } : (([Plugin, BDFDB]) => {
 
           //code stats here
@@ -234,6 +230,16 @@
                   #zomtable td, th {border: 4px solid #0000;;text-align: center;padding: 8px;font-size: 15px;white-space: nowrap;}
                   #zomtable th {background-color:#147ccc;font-weight:bold;}
                   #zomtable tr:nth-child(even) {background-color: #4f545c61;}
+                  .bw-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .bw-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .bw-button-top:active{background-color: var(--brand-experiment-600)}
+                  .bw-display{position: absolute;}
+                  .bwimgtt{position: absolute;white-space: nowrap;}
+                  .bwbar {height: 10px;width: 10px;background-color: #AAAAAA;box-shadow: 5px 4px 0px #2A2A2A;display: inline-flex;margin-right: 1px;}
+                  .bwbar.bwbaractive {background-color: #55FFFF;box-shadow: 5px 4px 0px #153F3F;}
+                  .bwimgbottom{display: grid;grid-template-columns: 200px 200px;grid-gap: 300px;position: absolute;margin-top: 443px;text-align: center;}
+                  .nowrap{white-space:nowrap;}
+                  .bwimgstats{display: grid;grid-template-columns: 200px 200px 200px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 50px;}
 
               `);
 
@@ -424,6 +430,55 @@
                 "101": 32000
               }
 
+              var __webpack_modules__ = {
+                832: module => {
+                  module.exports = BdApi.React;
+                }
+              };
+              var __webpack_module_cache__ = {};
+              function __webpack_require__(moduleId) {
+                var cachedModule = __webpack_module_cache__[moduleId];
+                if (void 0 !== cachedModule) return cachedModule.exports;
+                var module = __webpack_module_cache__[moduleId] = {
+                  exports: {}
+                };
+                __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+                return module.exports;
+              }
+              (() => {
+                __webpack_require__.n = module => {
+                  var getter = module && module.__esModule ? () => module["default"] : () => module;
+                  __webpack_require__.d(getter, {
+                    a: getter
+                  });
+                  return getter;
+                };
+              })();
+              (() => {
+                __webpack_require__.d = (exports, definition) => {
+                  for (var key in definition)
+                    if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) Object.defineProperty(exports, key, {
+                      enumerable: true,
+                      get: definition[key]
+                    });
+                };
+              })();
+              (() => {
+                __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+              })();
+              (() => {
+                __webpack_require__.r = exports => {
+                  if ("undefined" !== typeof Symbol && Symbol.toStringTag) Object.defineProperty(exports, Symbol.toStringTag, {
+                    value: "Module"
+                  });
+                  Object.defineProperty(exports, "__esModule", {
+                    value: true
+                  });
+                };
+              })();
+
+              const React = __webpack_require__(832)
+              
 
             return class StatsifyStats extends Plugin {
 
@@ -437,7 +492,8 @@
                     },
                     settings: {
                       guildmember:      {value: false,        name: "Display Guild Members"},
-                      gexp:             {value: false,        name: "Display Weekly Gexp Instead of Daily"}
+                      gexp:             {value: false,        name: "Display Weekly Gexp Instead of Daily"},
+                      days:             {vale : false,        name: "Display Join Date Instead of Days Ago"}
                     }
                   };
                     apiKey = BDFDB.DataUtils.load(this, "api");
@@ -455,6 +511,7 @@
                     document.getElementById("back-arrow-icon").onclick = this.backArrow;
 
                     this.popoverSize()
+                  
                 }
                 
                 onStart () {
@@ -463,7 +520,7 @@
                     if (form) this.addButton(form);
                     BDFDB.PatchUtils.forceAllUpdates(this);
 
-                    
+                    document.body.appendChild(popover)
                 }
                 
                 onStop () {
@@ -573,11 +630,13 @@
               gcache = BDFDB.DataUtils.load(this, "guildcache");
 
               const searchField = document.getElementById("searchInput")
-              searchField.addEventListener('keyup', event => {
-              if (event.keyCode === 13) this.getUUID()
-              })
+              if (searchField) {
+                  searchField.addEventListener('keyup', event => {
+                  if (event.keyCode === 13) this.getUUID()
+                })
+              }
 
-              document.getElementById("back-arrow-icon").onclick = this.backArrow;
+              document.getElementById("back-arrow-icon") ? document.getElementById("back-arrow-icon").onclick = this.backArrow : null
 
               const form = document.querySelector("form");
               if (form) this.addButton(form);
@@ -772,7 +831,7 @@
         }
 
         numberParse(string) {
-          let number = string
+          let number = string || 0
           let regex = /\b([0-9])\b/gm
           let replace = `0$1`
 
@@ -883,6 +942,80 @@
             splitText.forEach(parts => finalText += `<span class="${colors[parts[0]]?.color == undefined ? `white` : colors[parts[0]].color} shadow">${parts.split("").slice(1).join("")}</span>`)
             return finalText
           }
+
+
+
+          getLevelFormatted(level) {
+            const prestige = Math.floor(level / 100);
+            const levelCharsReversed = level.toString().split('').reverse();
+          
+            switch (prestige) {
+              case 0: return `§7[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 1: return `§f[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 2: return `§6[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 3: return `§b[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 4: return `§2[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 5: return `§3[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 6: return `§4[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 7: return `§d[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 8: return `§9[${level}<span style="font-size:1.35em">\u272B</span>]`;
+              case 9: return `§5[${level}<span style="font-size:1.35em">\u272B</span>]`;
+          
+              case 10: return `§c[§6${levelCharsReversed[3]}§e${levelCharsReversed[2]}§a${levelCharsReversed[1]}§b${levelCharsReversed[0]}§d<span style="font-size:1.35em">\u272B</span>§5]`;
+              case 11: return `§7[§f${level}§7<span style="font-size:1.35em">\u272A</span>]`;
+              case 12: return `§7[§e${level}§6<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 13: return `§7[§b${level}§3<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 14: return `§7[§a${level}§2<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 15: return `§7[§3${level}§9<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 16: return `§7[§c${level}§4<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 17: return `§7[§d${level}§5<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 18: return `§7[§9${level}§1<span style="font-size:1.35em">\u272A</span>§7]`;
+              case 19: return `§7[§5${level}§8<span style="font-size:1.35em">\u272A</span>§7]`;
+          
+              case 20: return `§8[§7${levelCharsReversed[3]}§f${levelCharsReversed[2]}${levelCharsReversed[1]}§7${levelCharsReversed[0]}<span style="font-size:1.35em">\u272A</span>§8]`;
+              case 21: return `§f[${levelCharsReversed[3]}§e${levelCharsReversed[2]}${levelCharsReversed[1]}§6${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§6]`;
+              case 22: return `§6[${levelCharsReversed[3]}§f${levelCharsReversed[2]}${levelCharsReversed[1]}§b${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§b]`;
+              case 23: return `§5[${levelCharsReversed[3]}§d${levelCharsReversed[2]}${levelCharsReversed[1]}§6${levelCharsReversed[0]}§e§l<span style="font-size:1.35em">\u269D</span>§e]`;
+              case 24: return `§b[${levelCharsReversed[3]}§f${levelCharsReversed[2]}${levelCharsReversed[1]}§7${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§8]`;
+              case 25: return `§f[${levelCharsReversed[3]}§a${levelCharsReversed[2]}${levelCharsReversed[1]}§2${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§2]`;
+              case 26: return `§4[${levelCharsReversed[3]}§c${levelCharsReversed[2]}${levelCharsReversed[1]}§d${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§5]`;
+              case 27: return `§e[${levelCharsReversed[3]}§f${levelCharsReversed[2]}${levelCharsReversed[1]}§8${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§8]`;
+              case 28: return `§a[${levelCharsReversed[3]}§2${levelCharsReversed[2]}${levelCharsReversed[1]}§6${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§e]`;
+              case 29: return `§b[${levelCharsReversed[3]}§3${levelCharsReversed[2]}${levelCharsReversed[1]}§9${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§1]`;
+          
+              case 30: return `§e[${levelCharsReversed[3]}§6${levelCharsReversed[2]}${levelCharsReversed[1]}§c${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§4]`;
+              default: return `§e[${levelCharsReversed[3]}§6${levelCharsReversed[2]}${levelCharsReversed[1]}§c${levelCharsReversed[0]}§l<span style="font-size:1.35em">\u269D</span>§4]`;
+            }
+          }
+
+          getExpForLevel (level) {
+            let progress = level % 100
+            if (progress > 3) return 5000
+
+            let levels = {
+                0: 500,
+                1: 1000,
+                2: 2000,
+                3: 3500,
+            }
+            return levels[progress]
+          }
+
+          getBwPrecentToNextLevel (exp) {
+            let prestiges = Math.floor(exp / 487000)
+            let level = prestiges * 100
+            let remainingExp = exp - prestiges * 487000
+            
+            for (var i = 0; i < 4; ++i) {
+                var expForNextLevel = this.getExpForLevel(i)
+                if (remainingExp < expForNextLevel) break
+                  level++
+                remainingExp -= expForNextLevel
+            }
+
+            return this.precentParse(parseFloat((level + remainingExp / this.getExpForLevel(level + 1)).toFixed(2)))
+          }
+        
 
           status() {
             let online = hyApi?.online;
@@ -1038,6 +1171,21 @@
            return new Date(dguild[xp]?.joined)?.toDateString()
           }
 
+          getGuildDays(guuid) {
+            let ign = guuid || null
+            let dguild = guild?.guild?.members
+            let oneDay = 24 * 60 * 60 * 1000
+  
+            for (var xp in dguild ) {
+              if (dguild[xp]?.uuid === ign)
+              break;
+           }
+           var date1 = new Date(dguild[xp]?.joined)
+           var date2 = new Date()
+
+           var days = Math.round(Math.abs((date1 - date2) / oneDay)).toLocaleString()  + ' ' + 'days ago' ?? ' ' + '0 days ago'
+           return days 
+          }
 
 
           loadGuildMembers = async () => {
@@ -1057,30 +1205,32 @@
               let id = guild?.guild?._id
 
               if (cache?.rawname != undefined || cache?.lastlogout != undefined) {
-              let row = `<tr>
+              let row = `<tr id="gmtb1">
                 <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${`<span style="cursor:pointer;"title="Search This Player" id="${dguild[table]?.uuid}">${this.mcColorParser(cache?.rawname) ?? `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</span>`}</td1>
                 <td>${await this.getGuildRank(dguild[table]?.uuid) || ""}</td>
-                <td>${settings.gexp === true ? await this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
-                <td>${await this.getGuildJoined(dguild[table]?.uuid) || ""}</td>
+                <td>${settings.gexp === true ? this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
+                <td>${settings.days === true ? this.getGuildJoined(dguild[table]?.uuid) || "0" : this.getGuildDays(dguild[table]?.uuid) || "0"}</td>
                 <td>${new Date(await cache?.lastlogout).toLocaleString() || "error"}</td>
               </tr>`
               gmtable.innerHTML += row
               } else {
                 let temp = await this.getTempDisplayName(dguild[table]?.uuid)
-                let row = `<tr>
-                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${`<span id="${dguild[table]?.uuid}">${cache?.rawname != undefined ? this.mcColorParser(cache?.rawname) : await temp.tempDisplayName ?? `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</span>`}</td1>
+                let row = `<tr id="gmtb2">
+                <td style="font-family:Minecraftia;text-align: left;font-size: 12px;"><img style="margin-right:10px;border-radius:4px;box-shadow: -1px 1px 10px 0px #18191c;" src="https://crafatar.com/avatars/${dguild[table]?.uuid}?size=25&overlay=true">  ${`<span style="cursor:pointer;"title="Search This Player" id="${dguild[table]?.uuid}">${cache?.rawname != undefined ? this.mcColorParser(cache?.rawname) : await temp.tempDisplayName ?? `<span style="font-size: 10px"class="red shadow">*rate limit*</span>`}</span>`}</td1>
                 <td>${await this.getGuildRank(dguild[table]?.uuid) || ""}</td>
-                <td>${settings.gexp === true ? await this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
-                <td>${await this.getGuildJoined(dguild[table]?.uuid) || ""}</td>
+                <td>${settings.gexp === true ? this.getWeeklyGuildxp(dguild[table]?.uuid) || "0" : await this.getDailyGuildxp(dguild[table]?.uuid) || "0"}</td>
+                <td>${settings.days === true ? this.getGuildJoined(dguild[table]?.uuid) || "0" : this.getGuildDays(dguild[table]?.uuid) || "0"}</td>
                 <td>${cache?.rawname != undefined ? new Date(await cache?.lastlogout).toLocaleString() || "error" : new Date(await temp.lastLogout).toLocaleString()}</td>
               </tr>`
               gmtable.innerHTML += row
               }
 
             }
-            for (let table in dguild) {
-              var element = document.getElementById(`${dguild[table]?.uuid}`)
-              element.addEventListener("click", () => this.getPlayer(dguild[table]?.uuid))
+            if (document.getElementById("gmtb1") || document.getElementById("gmtb2")) {
+              for (let table in dguild) {
+                var element = document.getElementById(`${dguild[table]?.uuid}`)
+                element.addEventListener("click", () => this.getPlayer(dguild[table]?.uuid))
+              }
             }
           }
           
@@ -1245,6 +1395,94 @@
             }
           }
 
+          bwButtonLoader() {
+            document.querySelectorAll(".bw-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "bw-solob":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_solo").style.visibility = ""
+                      })
+                    break
+                    case "bw-teamsb":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_teams").style.visibility = ""
+                      })
+                    break
+                    case "bw-doubleb":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_double").style.visibility = ""
+                      })
+                    break
+                    case "bw-overallb":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_overall").style.visibility = ""
+                      })
+                    break
+                    case "bw-threeb":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_three").style.visibility = ""
+                      })
+                    break
+                    case "bw-fourb":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_four").style.visibility = ""
+                      })
+                    break
+                    case "bw-4v4b":
+                      document.querySelectorAll(".bw-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("bw_4v4").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+          }
+
+          getBwMainMode() {
+            let solo = player?.stats?.Bedwars?.eight_one_games_played_bedwars || 0
+            let double = player?.stats?.Bedwars?.eight_two_games_played_bedwars || 0
+            let three = player?.stats?.Bedwars?.four_three_games_played_bedwars || 0
+            let four = player?.stats?.Bedwars?.four_four_games_played_bedwars || 0
+            let fourfour = player?.stats?.Bedwars?.two_four_games_played_bedwars || 0
+
+            switch (Math.max(solo, double, three, four, fourfour)){
+              case solo: return "Solos"
+              case double: return "Doubles"
+              case three: return "Threes"
+              case four: return "Fours"
+              case fourfour: return "4v4"
+            }
+            return "Unspecified"
+          }
+
+          bwBarLoader() {
+            let amount = Math.round(this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience) / 10) % 10
+
+            document.querySelectorAll("[id=bwbartnl]").forEach(bar => {
+              for (var i = 0; i < amount; i++) {
+                var element = bar.querySelector("[id=bwbartnl] div:not(.bwbaractive)")
+                if (element){    
+                  element.classList.add("bwbaractive");
+                } 
+             }
+            })
+          }
+
+          LevelParser (level) {
+            let number = (level || "0").toString()
+
+            return number.replace(/§[\d]|\D/g, "")
+          }
+
 
 
         popoverUpdater() {    
@@ -1260,6 +1498,7 @@
               this.loadGuildTab()
               this.petStats()
               this.todayDate()
+              
 
               tempbres.innerHTML = `<div>
                 
@@ -1701,8 +1940,410 @@
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck5">
                   <label class="tab-label" for="chck5">BedWars</label>
-                  <div class="tab-content">
-                    text
+                  <div style="height: 532px;"class="tab-content">
+                    <div style="margin-bottom:15px;" class="content-center">
+                    <button id="bw-solob" class="bw-button-top">Solo</button>
+                    <button id="bw-teamsb" class="bw-button-top">Teams</button>
+                    <button id="bw-doubleb" class="bw-button-top">Doubles</button>
+                    <button id="bw-overallb" class="bw-button-top">Overall</button>
+                    <button id="bw-threeb" class="bw-button-top">Three's</button>
+                    <button id="bw-fourb" class="bw-button-top">Four's</button>
+                    <button id="bw-4v4b" class="bw-button-top">4v4</button>
+                    </div>
+                    <div class="content-center">
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_solo">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/qch0OUC.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_one_final_kills_bedwars || 0) / (player?.stats?.Bedwars?.eight_one_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_one_kills_bedwars || 0) / (player?.stats?.Bedwars?.eight_one_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_one_wins_bedwars || 1, player?.stats?.Bedwars?.eight_one_losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_one_beds_broken_bedwars || 1, player?.stats?.Bedwars?.eight_one_beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_one_beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.eight_one_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_one_void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_one_final_kills_bedwars || 1, player?.stats?.Bedwars?.eight_one_final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_one_kills_bedwars || 1, player?.stats?.Bedwars?.eight_one_deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_one_void_kills_bedwars || 1, player?.stats?.Bedwars?.eight_one_void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_teams">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/JuM8mIx.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_winstreak || 0) + (player?.stats?.Bedwars?.four_four_winstreak || 0)).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_wins_bedwars || 0) + (player?.stats?.Bedwars?.four_four_wins_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 0) + (player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(((player?.stats?.Bedwars?.four_three_final_kills_bedwars || 0) + (player?.stats?.Bedwars?.four_four_final_kills_bedwars || 0)) / ((player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0) + (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0))).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_losses_bedwars || 0) + (player?.stats?.Bedwars?.four_four_losses_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_beds_lost_bedwars || 0) + (player?.stats?.Bedwars?.four_four_beds_lost_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(((player?.stats?.Bedwars?.four_three_kills_bedwars || 0) + (player?.stats?.Bedwars?.four_four_kills_bedwars || 0)) / ((player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0) + (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0))).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Bedwars?.four_three_wins_bedwars || 1) + (player?.stats?.Bedwars?.four_four_wins_bedwars || 1), (player?.stats?.Bedwars?.four_three_losses_bedwars || 1) + (player?.stats?.Bedwars?.four_four_losses_bedwars || 1))}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 1) + (player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 1), (player?.stats?.Bedwars?.four_three_beds_lost_bedwars || 1) + (player?.stats?.Bedwars?.four_four_beds_lost_bedwars || 1))}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(((player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 0) + (player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 0)) / ((player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0) + (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0))).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_final_kills_bedwars || 0) + (player?.stats?.Bedwars?.four_four_final_kills_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_kills_bedwars || 0) + (player?.stats?.Bedwars?.four_four_kills_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_void_kills_bedwars || 0) + (player?.stats?.Bedwars?.four_four_void_kills_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_final_deaths_bedwars || 0) + (player?.stats?.Bedwars?.four_four_final_deaths_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_deaths_bedwars || 0) + (player?.stats?.Bedwars?.four_four_deaths_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_void_deaths_bedwars || 0) + (player?.stats?.Bedwars?.four_four_void_deaths_bedwars || 0)).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Bedwars?.four_three_final_kills_bedwars || 1) + (player?.stats?.Bedwars?.four_four_final_kills_bedwars || 1), (player?.stats?.Bedwars?.four_three_final_deaths_bedwars || 1) + (player?.stats?.Bedwars?.four_four_final_deaths_bedwars || 1))}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Bedwars?.four_three_kills_bedwars || 1) + (player?.stats?.Bedwars?.four_four_kills_bedwars || 1), (player?.stats?.Bedwars?.four_three_deaths_bedwars || 1) + (player?.stats?.Bedwars?.four_four_deaths_bedwars || 1))}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Bedwars?.four_three_void_kills_bedwars || 1) + (player?.stats?.Bedwars?.four_four_void_kills_bedwars || 1), (player?.stats?.Bedwars?.four_three_void_deaths_bedwars || 1) + (player?.stats?.Bedwars?.four_four_void_deaths_bedwars || 1))}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_double">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/V9IoEK6.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_two_final_kills_bedwars || 0) / (player?.stats?.Bedwars?.eight_two_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_two_kills_bedwars || 0) / (player?.stats?.Bedwars?.eight_two_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_two_wins_bedwars || 1, player?.stats?.Bedwars?.eight_two_losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_two_beds_broken_bedwars || 1, player?.stats?.Bedwars?.eight_two_beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.eight_two_beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.eight_two_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.eight_two_void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_two_final_kills_bedwars || 1, player?.stats?.Bedwars?.eight_two_final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_two_kills_bedwars || 1, player?.stats?.Bedwars?.eight_two_deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.eight_two_void_kills_bedwars || 1, player?.stats?.Bedwars?.eight_two_void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                      <div class="bw-display content-center" style="" id="bw_overall">
+                        <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/mAVNYEo.png">
+                        <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                        <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                          <div class="bwimgtt" style="margin-top: 440px;">
+                        <a id="bwbartnl">
+                          <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <div class="bwbar"></div>
+                          <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                       </a>
+                       <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                          </div>
+                      <div class="bwimgbottom">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      </div>
+                      <div style="margin-top: 175px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.final_kills_bedwars || 0) / (player?.stats?.Bedwars?.games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                      </div>
+                      <div style="margin-top: 205px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.kills_bedwars || 0) / (player?.stats?.Bedwars?.games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                      </div>
+                      <div style="margin-top: 235px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.wins_bedwars || 1, player?.stats?.Bedwars?.losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.beds_broken_bedwars || 1, player?.stats?.Bedwars?.beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                      </div>
+                      <div style="margin-top: 305px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                      </div>
+                      <div style="margin-top: 335px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 365px;" class="bwimgstats">
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.final_kills_bedwars || 1, player?.stats?.Bedwars?.final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.kills_bedwars || 1, player?.stats?.Bedwars?.deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                      <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.void_kills_bedwars || 1, player?.stats?.Bedwars?.void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                      </div>
+                      </div>
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_three">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/A09pPki.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_final_kills_bedwars || 0) / (player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_kills_bedwars || 0) / (player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_three_wins_bedwars || 1, player?.stats?.Bedwars?.four_three_losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 1, player?.stats?.Bedwars?.four_three_beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_three_beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.four_three_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_three_void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_three_final_kills_bedwars || 1, player?.stats?.Bedwars?.four_three_final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_three_kills_bedwars || 1, player?.stats?.Bedwars?.four_three_deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_three_void_kills_bedwars || 1, player?.stats?.Bedwars?.four_three_void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_four">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/nwCIHft.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_four_final_kills_bedwars || 0) / (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_four_kills_bedwars || 0) / (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_four_wins_bedwars || 1, player?.stats?.Bedwars?.four_four_losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 1, player?.stats?.Bedwars?.four_four_beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.four_four_beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.four_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.four_four_void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_four_final_kills_bedwars || 1, player?.stats?.Bedwars?.four_four_final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_four_kills_bedwars || 1, player?.stats?.Bedwars?.four_four_deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.four_four_void_kills_bedwars || 1, player?.stats?.Bedwars?.four_four_void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                      <div class="bw-display content-center" style="visibility:hidden;" id="bw_4v4">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/jdfURji.png">
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                        <div class="bwimgtt" style="margin-top: 440px;">
+                      <a id="bwbartnl">
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">[</span>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <div class="bwbar"></div>
+                        <span style="font-size:23px;font-weight:bold;"class="dark_gray shadow">]</span>
+                     </a>
+                     <span style="font-size:15.5px;font-family:Minecraftia;margin-left: 5px;" class="aqua shadow">${this.getBwPrecentToNextLevel(player?.stats?.Bedwars?.Experience || 0)}%</span>
+                        </div>
+                    <div class="bwimgbottom">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_winstreak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    </div>
+                    <div style="margin-top: 175px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_wins_bedwars || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_beds_broken_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Broken</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.two_four_final_kills_bedwars || 0) / (player?.stats?.Bedwars?.two_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Finals per Game</span></a>
+                    </div>
+                    <div style="margin-top: 205px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_losses_bedwars || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_beds_lost_bedwars || 0).toLocaleString()}</span><span class="white shadow">Beds Lost</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.two_four_kills_bedwars || 0) / (player?.stats?.Bedwars?.two_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Kills per Game</span></a>
+                    </div>
+                    <div style="margin-top: 235px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.two_four_wins_bedwars || 1, player?.stats?.Bedwars?.two_four_losses_bedwars || 1)}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.two_four_beds_broken_bedwars || 1, player?.stats?.Bedwars?.two_four_beds_lost_bedwars || 1)}</span><span class="white shadow">BBLR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Bedwars?.two_four_beds_broken_bedwars || 0) / (player?.stats?.Bedwars?.two_four_games_played_bedwars|| 0)).toFixed(2)}</span><span class="white shadow">Beds per Game</span></a>
+                    </div>
+                    <div style="margin-top: 305px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_final_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_void_kills_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Kills</span></a>
+                    </div>
+                    <div style="margin-top: 335px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_final_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Bedwars?.two_four_void_deaths_bedwars || 0).toLocaleString()}</span><span class="white shadow">Void Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bwimgstats">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.two_four_final_kills_bedwars || 1, player?.stats?.Bedwars?.two_four_final_deaths_bedwars || 1)}</span><span class="white shadow">FKDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.two_four_kills_bedwars || 1, player?.stats?.Bedwars?.two_four_deaths_bedwars || 1)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Bedwars?.two_four_void_kills_bedwars || 1, player?.stats?.Bedwars?.two_four_void_deaths_bedwars || 1)}</span><span class="white shadow">VKDR</span></a>
+                    </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="tab">
@@ -1844,8 +2485,12 @@
               this.status()
               this.totemLoader()
               this.ptableLoader()
+              this.bwButtonLoader()
+              this.bwBarLoader()
               
               document.getElementById("zombies_table").addEventListener("click", this.showZomTable);
+
+
 
               if (document.getElementById('gmtbody')) {this.loadGuildMembers()}
               if (hyApi?.social?.discord) document.getElementById("click-discord").addEventListener("click", this.copyProfile);
