@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.0.9
+ * @version 1.1.0
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,17 +14,16 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.0.9",
+			"version": "1.1.0",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
-      "fixed": {
-        "Popover": "Popover not opening after turning on and off the plugin",
-        "Guild Members": "Error in console when you search a player before guild member is finished loading"
-      },
       "added": {
-        "Bedwars": "Bedwars stats are now available",
+        "Build Battle": "Build Battle stats are now available",
+        "Blitz": "Blitz stats are now available",
+        "CvC": "CvC stats are now available",
+        "Duels": "Duels stats are now available",
       }
 		}
 	};
@@ -101,6 +100,7 @@
             let totemLoad;
             let ptableLoad;
             let today;
+            let lb;
             
 
 
@@ -216,7 +216,7 @@
                   #gmtable tr:nth-child(even) {background-color: #4f545c61;}
                   .statsifyresize {cursor:help;height: 15px;left: -2px;position: absolute;top: 0px;width: 15px;z-index: 2;}
                   .arcade_table {margin: 0 auto;display: grid;grid-template-columns: repeat(auto-fit, minmax(1rem, 396px));align-items: center;column-gap: 2rem;row-gap: 2rem;max-width: 70em;justify-content:center;padding-top:20px;}
-                  .arcade_package {border-radius: 15px;background: #36393f;box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);overflow: hidden;position: relative;color: #dcddde;height: 220px;display:grid;justify-content:center;text-align:center;padding-bottom:10px;}
+                  .arcade_package {border-radius: 15px;background: #36393f;box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);overflow: hidden;position: relative;color: #dcddde;height: 220px;display:grid;justify-content:center;text-align:center;padding-bottom:10px;background-size: cover;background-repeat: no-repeat;background-position: center;}
                   .arcade_top{font-family: 'MinecraftiaRegular'; font-size: 25px;margin-bottom:.5em;}
                   .arcade_header{font-weight:bold;margin-top:10px;font-size: 17px;display:flex;justify-content:center;margin-bottom: 10px;}
                   .arcade_text{font-weight:bold;font-size: 15px;color: #dcddde;}
@@ -240,7 +240,24 @@
                   .bwimgbottom{display: grid;grid-template-columns: 200px 200px;grid-gap: 300px;position: absolute;margin-top: 443px;text-align: center;}
                   .nowrap{white-space:nowrap;}
                   .bwimgstats{display: grid;grid-template-columns: 200px 200px 200px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 50px;}
-
+                  .bbimgstats{display: grid;grid-template-columns: 200px 200px 200px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 30px;}
+                  .bsgimgstats3{display: grid;grid-template-columns: 200px 200px 200px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 25px;}
+                  .bsgimgstats2{display: grid;grid-template-columns: 200px 200px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 155px;}
+                  .bsg-button-top{background-color: transparent;font-size: 18px;color: white;position:absolute;margin-left: 820px;margin-top:10px}
+                  .bsg-display{position:absolute;}
+                  #kits_body div {justify-content: center;display: inline-block;text-align: center;margin-right:25px;margin-bottom:20px;}
+                  #kits_body div span {display: block;}
+                  #kits_body {text-align: center;margin-top:45px;}
+                  .bold {font-weight:bold;}
+                  .cvc-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .cvc-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .cvc-button-top:active{background-color: var(--brand-experiment-600)}
+                  .cvc-display{}
+                  .duels-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .duels-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .duels-button-top:active{background-color: var(--brand-experiment-600)}
+                  .duels-header{font-family:Minecraftia;text-shadow:1px 1px black;color:#2c9cf3;font-weight:500;margin-top:20px;font-size: 16px;display:flex;justify-content:center;}
+                  .duelcards{display: grid;grid-template-columns: 150px 150px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 35px;}
               `);
 
 
@@ -324,9 +341,10 @@
                 d: { color: "light_purple" },
                 e: { color: "yellow" },
                 f: { color: "white" },
+                l: { color: "bold" },
               }
 
-              var pet = {
+            var pet = {
                 "1": 0,
                 "2": 200,
                 "3": 210,
@@ -430,6 +448,62 @@
                 "101": 32000
               }
 
+            var blitz_level = {
+                "1": 0,
+                "2": 100,
+                "3": 250,
+                "4": 500,
+                "5": 1000,
+                "6": 150,
+                "7": 2000,
+                "8": 2500,
+                "9": 5000,
+                "10": 10000
+              }
+            
+            var blitz_kits = {
+              "horsetamer": "https://i.imgur.com/tYmhNAP.png",
+              "ranger": "https://i.imgur.com/0ZgtRqs.png",
+              "archer": "https://i.imgur.com/3VlyJFe.png",
+              "astronaut": "https://i.imgur.com/6iqigSq.png",
+              "troll": "https://i.imgur.com/sksN3ES.png",
+              "meatmaster": "https://i.imgur.com/gaPoMmG.png",
+              "reaper": "https://i.imgur.com/UxDvKw1.png",
+              "reddragon": "https://i.imgur.com/wBv9f0F.png",
+              "toxicologist": "https://i.imgur.com/Lg2v0to.png",
+              "donkeytamer": "https://i.imgur.com/U6iwB4E.png",
+              "rogue": "https://i.imgur.com/xmnbh20.png",
+              "warlock": "https://i.imgur.com/dbklfIn.png",
+              "slimeyslime": "https://i.imgur.com/oplG7O1.png",
+              "jockey": "https://i.imgur.com/ITqFPLb.png",
+              "golem": "https://i.imgur.com/WwBftfd.png",
+              "viking": "https://i.imgur.com/robFfMX.png",
+              "speleologist": "https://i.imgur.com/SmoHICv.png",
+              "shadow knight": "https://i.imgur.com/3kITzy2.png",
+              "baker": "https://i.imgur.com/KvmHpoy.png",
+              "knight": "https://i.imgur.com/tNGe3Ve.png",
+              "pigman": "https://i.imgur.com/1nLpJ1F.png",
+              "guardian": "https://i.imgur.com/5wLCKBY.png",
+              "phoenix": "https://i.imgur.com/oFpWhhP.png",
+              "paladin": "https://i.imgur.com/BPYCyNK.png",
+              "necromancer": "https://i.imgur.com/tABXOpT.png",
+              "scout": "https://i.imgur.com/eHUQ3oa.png",
+              "hunter": "https://i.imgur.com/TytRf04.png",
+              "warrior": "https://i.imgur.com/ySv5b2H.png",
+              "hype train": "https://i.imgur.com/M272zBj.png",
+              "fisherman": "https://i.imgur.com/AGCqxz0.png",
+              "florist": "https://i.imgur.com/Ul6wOIc.png",
+              "diver": "https://i.imgur.com/GqfbQkW.png",
+              "arachnologist": "https://i.imgur.com/KZr5UE6.png",
+              "blaze": "https://i.imgur.com/ip63VQ3.png",
+              "wolftamer": "https://i.imgur.com/H93P0SC.png",
+              "tim": "https://i.imgur.com/N8PsYzZ.png",
+              "snowman": "https://i.imgur.com/t0ShNBR.png",
+              "farmer": "https://i.imgur.com/l25VBqm.png",
+              "armorer": "https://i.imgur.com/a1BtP3a.png",
+              "creepertamer": "https://i.imgur.com/2iqvtHM.png"
+            }
+
               var __webpack_modules__ = {
                 832: module => {
                   module.exports = BdApi.React;
@@ -530,7 +604,7 @@
                     BDFDB.PatchUtils.forceAllUpdates(this);
                 }
        
-    getSettingsPanel (collapseStates = {}) {
+        getSettingsPanel (collapseStates = {}) {
         
 				let settingsPanel;
 				return settingsPanel = BDFDB.PluginUtils.createSettingsPanel(this, {
@@ -614,17 +688,17 @@
 						return settingsItems;
 					}
 				});
-			}
+			  }
 
-            onSettingsClosed () {
+        onSettingsClosed () {
 				if (this.SettingsUpdated) {
 					delete this.SettingsUpdated;
 					this.forceUpdateAll();
           this.popoverSize()
 				}
-			}
+			  }
 
-            forceUpdateAll () {
+        forceUpdateAll () {
               popsize = BDFDB.DataUtils.get(this, "popsize");
               settings = BDFDB.DataUtils.get(this, "settings");
               gcache = BDFDB.DataUtils.load(this, "guildcache");
@@ -640,10 +714,9 @@
 
               const form = document.querySelector("form");
               if (form) this.addButton(form);
-                }
+        }
       
-
-			getKey () {
+			  getKey () {
 				BDFDB.LibraryRequires.request(`https://api.hypixel.net/key?key=${apiKey}`, (err, res ) => {
                     const data = JSON.parse(res.body);
                     switch(res.statusCode){
@@ -683,8 +756,7 @@
                   this.getPlayer(uuid)
                 }
         })
-    }
-
+        }
 
         getPlayer(tuuid) {
             BDFDB.LibraryRequires.request(`https://api.hypixel.net/player?key=${apiKey}&uuid=${tuuid}`, (err, res) => {
@@ -701,7 +773,7 @@
                 document.getElementById("bodyResult").innerHTML = '';
               }
                   else if (res.statusCode == 200) {
-                  uuid = tuuid
+                  uuid = tuuid.replace(/-/g, "")
 
                   document.getElementById("bodyResult").innerHTML = ''
                   this.statLoader()
@@ -716,13 +788,26 @@
                   displayName = this.mcColorParser(ign)
 
 
-                  if (player) this.getHyapi()
+                  if (player) this.getLeaderboard()
                 }
                   else {
                     BDFDB.NotificationUtils.toast("Server or Api is Down", {type: "danger"});
                     document.getElementById("bodyResult").innerHTML = '';
                   }
             })
+        }
+
+        getLeaderboard() {
+          BDFDB.LibraryRequires.request(`https://api.hypixel.net/leaderboards?key=${apiKey}`, (err, res) => {
+            var body  = JSON.parse(res.body)
+
+            if (res.statusCode == 200) {
+              lb = body?.leaderboards
+            }
+              else BDFDB.NotificationUtils.toast("An error occurred with hypixel's leaderboards", {type: "danger"})
+
+            if (body) this.getHyapi()
+          })
         }
 
         getHyapi() {
@@ -781,7 +866,6 @@
           })
         }
 
-
         addButton() {
             const textbar = document.querySelector('form [class^=buttons-3JBrkn]');
             if (textbar) textbar.appendChild(buttonHTML);
@@ -804,7 +888,6 @@
             
         }
         
-
         statLoader() {
           let temp = document.getElementById("bodyResult")
           temp.innerHTML = `<div class="stat-loader content-center"><img class="stat-loading" src="https://cdn.discordapp.com/attachments/803669565120577556/870732561008164924/statsify.gif">
@@ -858,7 +941,6 @@
           else null
         }
 
-
         getRank = (player) => {
             let rank = 'NON';
             if ((player).monthlyPackageRank || (player).packageRank || (player).newPackageRank) {
@@ -882,7 +964,6 @@
           
             return rank.length == 0 ? `NON` : rank;
           }
-
 
         getPlusColor = (rank, plus) => {
             if (plus == undefined || rank == 'PIG+++') {
@@ -943,8 +1024,12 @@
             return finalText
           }
 
-
-
+          toTitleCase(str) {
+            return str.replace(/\w\S*/g, function(txt){
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+          }
+          
           getLevelFormatted(level) {
             const prestige = Math.floor(level / 100);
             const levelCharsReversed = level.toString().split('').reverse();
@@ -1016,7 +1101,6 @@
             return this.precentParse(parseFloat((level + remainingExp / this.getExpForLevel(level + 1)).toFixed(2)))
           }
         
-
           status() {
             let online = hyApi?.online;
             let status = document.getElementById("status");
@@ -1065,7 +1149,6 @@
             else return ''
         }
             
-
           loadProfile() {
             const profile = `${player?.socialMedia ? `<div class="profiles">
             ${player?.socialMedia?.links?.YOUTUBE ? `<a style="cursor: default;" class="youtube"><img title="Open Link to Youtube!" class="profile" data-tooltip="Open Link" onclick="window.open('${player?.socialMedia?.links?.YOUTUBE}')"id="click-youtube" style="margin-right: 1em;" src="https://cdn.discordapp.com/emojis/737967209057353799.png?v=1"></a>` : ""}
@@ -1186,7 +1269,6 @@
            var days = Math.round(Math.abs((date1 - date2) / oneDay)).toLocaleString()  + ' ' + 'days ago' ?? ' ' + '0 days ago'
            return days 
           }
-
 
           loadGuildMembers = async () => {
             const ranks = Object.fromEntries(guild?.guild?.ranks.map(rank => [rank?.name.toLowerCase(), rank]));
@@ -1323,8 +1405,6 @@
             }
           }
 
-
-
           petStats() {
             const pexp = player?.petStats?.[player?.currentPet]?.experience || 0
 
@@ -1395,7 +1475,7 @@
             }
           }
 
-          bwButtonLoader() {
+          gamesButtonLoader() {
             document.querySelectorAll(".bw-button-top").forEach((button) => {
               button.addEventListener("click", (e) => {
                 e.preventDefault()
@@ -1445,6 +1525,60 @@
                   }
               })
             })
+            document.querySelectorAll(".cvc-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "cvc-defb":
+                      document.querySelectorAll(".cvc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("cvc_def").style.visibility = ""
+                      })
+                    break
+                    case "cvc-tdmb":
+                      document.querySelectorAll(".cvc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("cvc_tdm").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll(".duels-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "duel-overallb":
+                      document.querySelectorAll(".duels-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("duel-tabcontent").style.height = '532px'
+                        document.getElementById("duel_overall").style.visibility = ""
+                      })
+                    break
+                    case "duel-allb":
+                      document.querySelectorAll(".duels-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("duel-tabcontent").style.height = '5000px'
+                        document.getElementById("duel_all").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.getElementById("bsg-kitsb").addEventListener("click", function(){
+              let kitpage = document.getElementById("bsg_kits")
+              let bsgstats = document.getElementById("bsg-statss")
+
+              if (kitpage.style.visibility !== 'hidden') {
+                kitpage.style.visibility = 'hidden';
+                bsgstats.style.visibility = '';
+                
+              }
+             else {
+                kitpage.style.visibility = '';
+                bsgstats.style.visibility = 'hidden';
+              }
+            })
           }
 
           getBwMainMode() {
@@ -1483,6 +1617,228 @@
             return number.replace(/§[\d]|\D/g, "")
           }
 
+          buildBattleTitle (score, id) {
+            var path = lb?.BUILD_BATTLE?.[0]?.leaders.slice(0, 10).map(value => value.replace(/-/g, ""))
+
+            if (path.includes(id)) return `§6#${path.indexOf(id) + 1} Builder`
+            if (score < 100) return "§fRookie"
+            if (score < 250) return "§7Untrained"
+            if (score < 500) return "§eAmateur"
+            if (score < 1000) return "§aApprentice"
+            if (score < 2000) return "§dExperienced"
+            if (score < 3500) return "§9Seasoned"
+            if (score < 5000) return "§2Trained"
+            if (score < 7500) return "§3Skilled"
+            if (score < 10000) return "§cTalented"
+            if (score < 15000) return "§5Professional"
+            if (score < Infinity) return "§4Master"
+
+            return "§fRookie"
+          }
+
+          getBlitzExpKitLevel (kitexp) {
+            var exp = player?.stats?.HungerGames?.[kitexp] || 0
+
+            if (exp === 0) return 0
+
+            for (var key in blitz_level) {
+              if (exp < blitz_level[key]) break
+
+            }
+            return key
+          }
+
+          getBlitzKitLevel (kitname) {
+            let data = player?.stats?.HungerGames ?? {}
+            let basicKits = ['archer','meatmaster','speleologist','baker','knight','guardian','scout','hunter','hype train','fisherman','armorer']
+            let expKits = ['donkeytamer', 'warrior', 'ranger', 'phoenix']
+
+            if (`p${kitname}` in data) return data[`p${kitname}`] === 1 ? `✫` : `✫✫`
+            else if (kitname in data) return data[kitname] + 1
+            else if (basicKits.includes(kitname)) return 1
+            else if (expKits.includes(kitname)) return this.getBlitzExpKitLevel(`exp_${kitname}`)
+            else return 0
+          }
+
+          blitzKitImageLoader() {
+            let body = document.getElementById("kits_body")
+            let kits = new Map()
+
+            for (var kit in blitz_kits) {
+              kits.set(kit, [kit, this.getBlitzKitLevel(kit), blitz_kits[kit]])
+            }
+
+            kits.forEach(element => {
+              let kitname = element[0]
+              let kitlevel = element[1]
+              let kitimg = element[2]
+              
+              let img = kitlevel === 0 ? "" : `<div>
+              ${['✫', '✫✫'].includes(kitlevel) ? `<img title="${this.toTitleCase(kitname)}" style="width:56px" src="${kitimg}"><span style="font-family:Minecraftia;font-size:25px;text-align:center;" class="gold shadow">${kitlevel}</span>` : `<img title="${this.toTitleCase(kitname)}" style="width:56px" src="${kitimg}"><span style="font-family:Minecraftia;font-size:20px;text-align:center;" class="dark_red shadow">${this.romanize(kitlevel)}</span>`}
+              </div>`
+              body.innerHTML += img
+            })
+          }
+
+          romanize(num) {
+            var lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
+            for ( i in lookup ) {
+              while ( num >= lookup[i] ) {
+                roman += i;
+                num -= lookup[i];
+              }
+            }
+            return roman;
+          }
+
+          getBlitzKillCounter(kills) {
+            if (kills < 1000) return `§f[§7${kills.toLocaleString()}§f]`
+            if (kills < 25000) return `§e[${kills.toLocaleString()}]`
+            if (kills < 50000) return `§a[${kills.toLocaleString()}]`
+            if (kills < 75000) return `§c[${kills.toLocaleString()}]`
+            if (kills < 100000) return `§b[${kills.toLocaleString()}]` 
+            if (kills < 150000) return `§6[${kills.toLocaleString()}]`
+            if (kills < 200000) return `§5[${kills.toLocaleString()}]`
+            if (kills < 250000) return `§4[${kills.toLocaleString()}]`
+            if (kills < 300000) return `§9[${kills.toLocaleString()}]`
+            if (kills < Infinity) return `§2[${kills.toLocaleString()}]`
+
+            return `§f[§7${kills.toLocaleString()}§f]`
+          }
+
+          getBlitzMainMode() {
+            let solo = player?.stats?.HungerGames?.kills_solo_normal || 0
+            let teams = player?.stats?.HungerGames?.kills_teams_normal || 0
+
+            switch (Math.max(solo, teams)) {
+              case solo: return "Solo"
+              case teams: return "Teams"
+            }
+          }
+
+          getBlitzTotalKits() {
+            let kits = new Map()
+
+            for (var kit in blitz_kits) {
+              this.getBlitzKitLevel(kit) === 0 ? null : kits.set([this.getBlitzKitLevel(kit)])
+            }
+            return kits.size
+          }
+
+          getCvcMainMode() {
+            let def = player?.stats?.MCGO?.game_plays || 0
+            let dm = player?.stats?.MCGO?.games_plays_deathmatch || 0
+
+            switch (Math.max(def, dm)) {
+              case def: return "Defusal"
+              case dm: return "Death Match"
+            }
+          }
+
+          getDuelsMainMode() {
+          let sumo = player?.stats?.Duels?.sumo_duel_rounds_played || 0
+          let bow = player?.stats?.Duels?.bow_duel_rounds_played || 0
+          let combo = player?.stats?.Duels?.combo_duel_rounds_played || 0
+          let potion = player?.stats?.Duels?.potion_duel_rounds_played || 0
+          let bowSpleef = player?.stats?.Duels?.bowspleef_duel_rounds_played|| 0
+          let classic = player?.stats?.Duels?.classic_duel_rounds_played || 0
+          let blitz = player?.stats?.Duels?.blitz_duel_rounds_played || 0
+          let swSolo = player?.stats?.Duels?.sw_duel_rounds_played || 0
+          let swDoubles = player?.stats?.Duels?.sw_doubles_rounds_played || 0
+          let opSolo = player?.stats?.Duels?.op_duel_rounds_played || 0
+          let opDoubles = player?.stats?.Duels?.op_doubles_rounds_played || 0
+          let mwSolo = player?.stats?.Duels?.mw_duel_rounds_played || 0
+          let mwDoubles = player?.stats?.Duels?.mw_doubles_rounds_played || 0
+          let bridgeSolo = player?.stats?.Duels?.bridge_duel_rounds_played || 0
+          let bridgeDoubles = player?.stats?.Duels?.bridge_doubles_rounds_played || 0
+          let bridgeFour = player?.stats?.Duels?.bridge_four_rounds_played || 0
+          let bridgeTwoFour = player?.stats?.Duels?.bridge_2v2v2v2_rounds_played || 0
+          let bridgeThreeFour = player?.stats?.Duels?.bridge_3v3v3v3_rounds_played || 0
+          let uhcSolo = player?.stats?.Duels?.uhc_duel_rounds_played || 0
+          let uhcDouble = player?.stats?.Duels?.uhc_doubles_rounds_played || 0
+          let uhcFour = player?.stats?.Duels?.uhc_four_rounds_played || 0
+          let uhcMeetup = player?.stats?.Duels?.uhc_meetup_rounds_played || 0
+
+            switch(Math.max(sumo, bow, combo, potion, bowSpleef, classic, blitz, swSolo, swDoubles, opSolo, opDoubles, mwSolo, mwDoubles, bridgeSolo, bridgeDoubles, bridgeFour, bridgeTwoFour, bridgeThreeFour, uhcSolo, uhcDouble, uhcFour, uhcMeetup)) {
+              case sumo: return "Sumo"
+              case bow: return "Bow"
+              case combo: return "Combo"
+              case potion: return "NoDebuff"
+              case bowSpleef: return "Bow Spleef"
+              case classic: return "Classic"
+              case blitz: return "Blitz"
+              case swSolo: return "SkyWars Solo"
+              case swDoubles: return "SkyWars Doubles"
+              case opSolo: return "Op Solo"
+              case opDoubles: return "Op Doubles"
+              case mwSolo: return "Mega Walls Solo"
+              case mwDoubles: return "Mega Walls Doubles"
+              case bridgeSolo: return "Bridge Solo"
+              case bridgeDoubles: return "Bridge Doubles"
+              case bridgeFour: return "Bridge Fours"
+              case bridgeTwoFour: return "Bridge 2v2v2v2"
+              case bridgeThreeFour: return "Bridge 3v3v3v3"
+              case uhcSolo: return "UHC Solo"
+              case uhcDouble: return "UHC Double"
+              case uhcFour: return "UHC Four"
+              case uhcMeetup: return "UHC Meetup"
+            }
+          }
+
+          getDuelsTitle(wins) {
+            if (wins < 120) return "§8Rookie"
+            if (wins < 140) return "§8Rookie II"
+            if (wins < 160) return "§8Rookie III"
+            if (wins < 180) return "§8Rookie IV"
+
+            if (wins < 200) return "§8Rookie V"
+            if (wins < 260) return "§7Iron"
+            if (wins < 320) return "§7Iron II"
+            if (wins < 380) return "§7Iron III"
+            if (wins < 440) return "§7Iron IV"
+
+            if (wins < 500) return "§7Iron V"
+            if (wins < 600) return "§6Gold"
+            if (wins < 700) return "§6Gold II"
+            if (wins < 800) return "§6Gold III"
+            if (wins < 900) return "§6Gold IV"
+
+            if (wins < 1000) return "§6Gold V"
+            if (wins < 1200) return "§bDiamond"
+            if (wins < 1400) return "§bDiamond II"
+            if (wins < 1600) return "§bDiamond III"
+            if (wins < 1800) return "§bDiamond IV"
+            
+            if (wins < 2000) return "§bDiamond V"
+            if (wins < 2400) return "§2Master"
+            if (wins < 2800) return "§2Master II"
+            if (wins < 3200) return "§2Master III"
+            if (wins < 3600) return "§2Master IV"
+            
+            if (wins < 4000) return "§2Master V"
+            if (wins < 5200) return "§4Legend"
+            if (wins < 6400) return "§4Legend II"
+            if (wins < 7600) return "§4Legend III"
+            if (wins < 8800) return "§4Legend IV"
+            
+            if (wins < 10000) return "§4Legend V"
+            if (wins < 12000) return "§eGrandmaster"
+            if (wins < 14000) return "§eGrandmaster II"
+            if (wins < 16000) return "§eGrandmaster III"
+            if (wins < 18000) return "§eGrandmaster IV"
+            
+            if (wins < 20000) return "§eGrandmaster V"
+            if (wins < 24000) return "§5Godlike"
+            if (wins < 28000) return "§5Godlike II"
+            if (wins < 32000) return "§5Godlike III"
+            if (wins < 36000) return "§5Godlike IV"
+            if (wins < 40000) return "§5Godlike V"
+            if (wins < 44000) return "§5Godlike VI"
+            if (wins < 48000) return "§5Godlike VII"
+            if (wins < 52000) return "§5Godlike VIII"
+            if (wins < 56000) return "§5Godlike IX"
+            if (wins < Infinity) return "§5Godlike X"
+          }
 
 
         popoverUpdater() {    
@@ -1498,7 +1854,8 @@
               this.loadGuildTab()
               this.petStats()
               this.todayDate()
-              
+
+              console.log(this.getDuelsTitle(player?.stats?.Duels?.wins))
 
               tempbres.innerHTML = `<div>
                 
@@ -1946,8 +2303,8 @@
                     <button id="bw-teamsb" class="bw-button-top">Teams</button>
                     <button id="bw-doubleb" class="bw-button-top">Doubles</button>
                     <button id="bw-overallb" class="bw-button-top">Overall</button>
-                    <button id="bw-threeb" class="bw-button-top">Three's</button>
-                    <button id="bw-fourb" class="bw-button-top">Four's</button>
+                    <button id="bw-threeb" class="bw-button-top">Threes</button>
+                    <button id="bw-fourb" class="bw-button-top">Fours</button>
                     <button id="bw-4v4b" class="bw-button-top">4v4</button>
                     </div>
                     <div class="content-center">
@@ -2065,7 +2422,7 @@
                       </div>
                       <div class="bw-display content-center" style="visibility:hidden;" id="bw_double">
                       <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/V9IoEK6.png">
-                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:12px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getLevelFormatted(player?.achievements?.bedwars_level || 0, uuid))} ${displayName} ${gcolor}</h1></a></div>
                       <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getBwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
                         <div class="bwimgtt" style="margin-top: 440px;">
                       <a id="bwbartnl">
@@ -2348,30 +2705,818 @@
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck6">
-                  <label class="tab-label" for="chck6">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck6">Build Battle</label>
+                  <div style="height: 474px;"class="tab-content">
+                    <div class="content-center">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/OIOmLxg.png">
+                      <div class="bwimgtt" style="margin-top:25px;font-size:20px;font-family:MinecraftiaRegular;"><a><span style="font-weight:bold;">${this.mcColorParser(this.buildBattleTitle(player?.stats?.BuildBattle?.score || 0, uuid))}</span><span> ${displayName} ${gcolor}</span></a></div>
+                      <div class="bwimgtt" style="margin-top:110px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${(player?.stats?.BuildBattle?.score || 0).toLocaleString()}</span><span style="color:#F2F2F2">Score</span></a></div>
+                        <div style="margin-top: 415px;" class="bbimgstats">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.total_votes || 0).toLocaleString()}</span><span class="white shadow">Votes</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.super_votes || 0).toLocaleString()}</span><span class="white shadow">Super Votes</span></a>
+                        </div>
+                        <div style="margin-top: 185px;" class="bbimgstats">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.BuildBattle?.games_played || 0) - (player?.stats?.BuildBattle?.wins || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.correct_guesses || 0).toLocaleString()}</span><span class="white shadow">Guesses</span></a>
+                        </div>
+                        <div style="margin-top: 265px;" class="bbimgstats">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.wins_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Solo Wins</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.wins_teams_normal || 0).toLocaleString()}</span><span class="white shadow">Team Wins</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.wins_solo_pro || 0).toLocaleString()}</span><span class="white shadow">Pro Wins</span></a>
+                        </div>
+                        <div style="margin-top: 335px;" class="content-center">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.BuildBattle?.wins_guess_the_build || 0).toLocaleString()}</span><span class="white shadow">Guess The Build Wins</span></a>
+                        </div>
+                    </div>
                   </div>
                 </div>
                <div class="tab">
+                  <button title="Display Kits" id="bsg-kitsb" class="bsg-button-top">&#10066;</button>
                   <input class="input56" type="checkbox" id="chck7">
-                  <label class="tab-label" for="chck7">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck7">Blitz Survival Games</label>
+                  <div style="height: 474px;"class="tab-content">
+                      <div class="bsg-display content-center" style="visibility:hidden;" id="bsg_kits">
+                        <div id="kits_body">
+                      </div>
+                    </div>
+                    <div id="bsg-statss" style="" class="content-center">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/hoCh0Pm.png">
+                      <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getBlitzKillCounter(player?.stats?.HungerGames?.kills || 0))} ${displayName} ${gcolor}</h1></a></div>
+                      <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px;text-shadow: 1px 1px 1px black;">${this.getBlitzMainMode()}</span><span class="white shadow">Main Mode</span></a></div>
+                      <div class="bwimgtt" style="margin-top:125px;font-size:18px;font-family:MinecraftiaRegular;"><a><span class="yellow shadow" style="margin-right:10px;text-shadow: 1px 1px 1px black;">${this.getBlitzTotalKits()}</span><span class="white shadow">Kits</span></a></div>
+                      <div style="margin-top: 440px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.defaultkit || 0).toLocaleString()}</span><span class="white shadow">Default Kit</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.chests_opened || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                      </div>
+                    <div style="margin-top: 190px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.HungerGames?.wins_solo_normal || 0) + (player?.stats?.HungerGames?.wins_teams_normal || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 225px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.HungerGames?.games_played || 0) - ((player?.stats?.HungerGames?.wins_solo_normal || 0) + (player?.stats?.HungerGames?.wins_teams_normal || 0))).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 255px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.HungerGames?.wins_solo_normal || 0) + (player?.stats?.HungerGames?.wins_teams_normal || 0)), ((player?.stats?.HungerGames?.games_played || 0) - ((player?.stats?.HungerGames?.wins_solo_normal || 0) + (player?.stats?.HungerGames?.wins_teams_normal || 0))))}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.HungerGames?.kills || 0), (player?.stats?.HungerGames?.deaths || 0))}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 330px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.wins_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Solo Wins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.wins_teams_normal || 0).toLocaleString()}</span><span class="white shadow">Team Wins</span></a>
+                    </div>
+                    <div style="margin-top: 365px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.kills_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Solo Kills</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.HungerGames?.kills_teams_normal || 0).toLocaleString()}</span><span class="white shadow">Team Kills</span></a>
+                    </div>
+                    </div>
                   </div>
                 </div>
                <div class="tab">
                   <input class="input56" type="checkbox" id="chck8">
-                  <label class="tab-label" for="chck8">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck8">Cops and Crims</label>
+                  <div style="height:532px;" class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="cvc-defb" class="cvc-button-top">Defusal</button>
+                    <button id="cvc-tdmb" class="cvc-button-top">Death Match</button>
+                  </div>
+                  <div class="cvc-display content-center" style="" id="cvc_def">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/o61vDfx.png">
+                  <div class="bwimgtt" style="margin-top:90px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getCvcMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 430px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.bombs_defused || 0).toLocaleString()}</span><span class="white shadow">Bombs Defused</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.bombs_planted || 0).toLocaleString()}</span><span class="white shadow">Bombs Planted</span></a>
+                  </div>
+                  <div style="margin-top: 170px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.game_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 205px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MCGO?.game_plays || 0) - (player?.stats?.MCGO?.game_wins || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MCGO?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                  <div style="margin-top: 240px;" class="bsgimgstats2">
+                    <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.MCGO?.game_wins || 0), ((player?.stats?.MCGO?.game_plays || 0) - (player?.stats?.MCGO?.game_wins || 0)))}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.MCGO?.kills || 0), (player?.stats?.MCGO?.deaths || 0))}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.cop_kills || 0).toLocaleString()}</span><span class="white shadow">Cop Kills</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.headshot_kills || 0).toLocaleString()}</span><span class="white shadow">Head Shots</span></a>
+                  </div>
+                  <div style="margin-top: 360px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.criminal_kills || 0).toLocaleString()}</span><span class="white shadow">Crim Kills</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.shots_fired || 0).toLocaleString()}</span><span class="white shadow">Shots</span></a>
+                  </div>
+                  </div>
+                  <div class="cvc-display content-center" style="visibility:hidden;" id="cvc_tdm">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/DWlWCxm.png">
+                  <div class="bwimgtt" style="margin-top:90px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getCvcMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 430px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.bombs_defused || 0).toLocaleString()}</span><span class="white shadow">Bombs Defused</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:15px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MCGO?.bombs_planted || 0).toLocaleString()}</span><span class="white shadow">Bombs Planted</span></a>
+                  </div>
+                  <div style="margin-top: 170px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.game_wins_deathmatch || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.kills_deathmatch || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 205px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MCGO?.game_plays_deathmatch || 0) - (player?.stats?.MCGO?.game_wins_deathmatch || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MCGO?.deaths_deathmatch || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                  <div style="margin-top: 240px;" class="bsgimgstats2">
+                    <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.MCGO?.game_wins_deathmatch || 0), ((player?.stats?.MCGO?.game_plays_deathmatch || 0) - (player?.stats?.MCGO?.game_wins_deathmatch || 0)))}</span><span class="white shadow">WLR</span></a>
+                    <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.MCGO?.kills_deathmatch || 0), (player?.stats?.MCGO?.deaths_deathmatch || 0))}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 335px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.cop_kills_deathmatch || 0).toLocaleString()}</span><span class="white shadow">Cop Kills</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MCGO?.criminal_kills_deathmatch || 0).toLocaleString()}</span><span class="white shadow">Crim Kills</span></a>
+                  </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck9">
-                  <label class="tab-label" for="chck9">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck9">Dules</label>
+                  <div id="duel-tabcontent" style="height:532px;" class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="duel-overallb" class="duels-button-top">Overall</button>
+                    <button id="duel-allb" class="duels-button-top">All</button>
+                  </div>
+                    <div class="duels-display content-center" style="" id="duel_overall">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/mQrnN77.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getDuelsTitle(player?.stats?.Duels?.wins || 0))} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px;text-shadow: 1px 1px 1px black;">${this.getDuelsMainMode()}</span><span class="white shadow">Main Mode</span></a></div>
+                      <div style="margin-top: 440px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak || 0).toLocaleString()}</span><span class="white shadow">Current Winstreak</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_overall_winstreak || 0).toLocaleString()}</span><span class="white shadow">Best Winstreak</span></a>
+                      </div>
+                    <div style="margin-top: 160px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 190px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 220px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Duels?.wins || 0), (player?.stats?.Duels?.losses || 0))}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Duels?.kills || 0), (player?.stats?.Duels?.losses || 0))}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 310px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.melee_hits || 0).toLocaleString()}</span><span class="white shadow">Hits</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_hits || 0).toLocaleString()}</span><span class="white shadow">Bow Hits</span></a>
+                    </div>
+                    <div style="margin-top: 340px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.melee_swings || 0).toLocaleString()}</span><span class="white shadow">Swings</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_shots || 0).toLocaleString()}</span><span class="white shadow">Bow Shots</span></a>
+                    </div>
+                    <div style="margin-top: 370px;" class="bsgimgstats2">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${(((player?.stats?.Duels?.melee_hits || 0) / (player?.stats?.Duels?.melee_swings || 0)) * 100).toFixed(2)}%</span><span class="white shadow">Accuracy</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${(((player?.stats?.Duels?.bow_hits || 0) / (player?.stats?.Duels?.bow_shots || 0)) * 100).toFixed(2)}%</span><span class="white shadow">Accuracy</span></a>
+                    </div>
+                    </div>
+                    <div class="duels-display content-center" style="visibility:hidden;" id="duel_all">
+                    <div>
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/SRGDs2z.png);" class="arcade_package">
+                          <h1 class="duels-header">UHC Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_duel_kills  || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_duel_losses  || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_duel_deaths  || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_duel_wins || 0, player?.stats?.Duels?.uhc_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_duel_kills  || 0, player?.stats?.Duels?.uhc_duel_deaths  || 0) } KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_uhc_winstreak || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_uhc_winstreak  || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/SRGDs2z.png);" class="arcade_package">
+                          <h1 class="duels-header">UHC Doubles</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_doubles_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_doubles_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_doubles_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_doubles_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_doubles_wins || 0, player?.stats?.Duels?.uhc_doubles_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_doubles_kills || 0, player?.stats?.Duels?.uhc_doubles_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_uhc_doubles || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_uhc_doubles || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/SRGDs2z.png);" class="arcade_package">
+                          <h1 class="duels-header">UHC Fours</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_four_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_four_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_four_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_four_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_four_wins || 0, player?.stats?.Duels?.uhc_four_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_four_kills || 0, player?.stats?.Duels?.uhc_four_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_uhc_four || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_uhc_four || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/SRGDs2z.png);" class="arcade_package">
+                          <h1 class="duels-header">UHC Meetup</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_meetup_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_meetup_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_meetup_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.uhc_meetup_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_meetup_wins || 0, player?.stats?.Duels?.uhc_meetup_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.uhc_meetup_kills || 0, player?.stats?.Duels?.uhc_meetup_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_uhc_meetup || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_uhc_meetup || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 523px;position: absolute;">
+                    <div class="arcade_table">
+                     <div style="background-image: url(https://i.imgur.com/SRGDs2z.png);" class="arcade_package">
+                        <h1 class="duels-header">UHC Overall</h1>
+                        <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.uhc_duel_wins || 0) + (player?.stats?.Duels?.uhc_doubles_wins || 0) + (player?.stats?.Duels?.uhc_four_wins || 0) + (player?.stats?.Duels?.uhc_meetup_wins || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.uhc_duel_kills || 0) + (player?.stats?.Duels?.uhc_doubles_kills || 0) + (player?.stats?.Duels?.uhc_four_kills || 0) + (player?.stats?.Duels?.uhc_meetup_kills || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.uhc_duel_losses || 0) + (player?.stats?.Duels?.uhc_doubles_losses || 0) + (player?.stats?.Duels?.uhc_four_losses || 0) + (player?.stats?.Duels?.uhc_meetup_losses || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.uhc_duel_deaths || 0) + (player?.stats?.Duels?.uhc_doubles_deaths || 0) + (player?.stats?.Duels?.uhc_four_deaths || 0) + (player?.stats?.Duels?.uhc_meetup_deaths || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.uhc_duel_wins || 0) + (player?.stats?.Duels?.uhc_doubles_wins || 0) + (player?.stats?.Duels?.uhc_four_wins || 0) + (player?.stats?.Duels?.uhc_meetup_wins || 0)), ((player?.stats?.Duels?.uhc_duel_losses || 0) + (player?.stats?.Duels?.uhc_doubles_losses || 0) + (player?.stats?.Duels?.uhc_four_losses || 0) + (player?.stats?.Duels?.uhc_meetup_losses || 0)))} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.uhc_duel_kills || 0) + (player?.stats?.Duels?.uhc_doubles_kills || 0) + (player?.stats?.Duels?.uhc_four_kills || 0) + (player?.stats?.Duels?.uhc_meetup_kills || 0)), ((player?.stats?.Duels?.uhc_duel_deaths || 0) + (player?.stats?.Duels?.uhc_doubles_deaths || 0) + (player?.stats?.Duels?.uhc_four_deaths || 0) + (player?.stats?.Duels?.uhc_meetup_deaths || 0)))} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.current_winstreak_mode_uhc_duel || 0) + (player?.stats?.Duels?.current_winstreak_mode_uhc_doubles || 0) + (player?.stats?.Duels?.current_winstreak_mode_uhc_four || 0) + (player?.stats?.Duels?.current_winstreak_mode_uhc_meetup || 0)).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.best_winstreak_mode_uhc_duel || 0) + (player?.stats?.Duels?.best_winstreak_mode_uhc_doubles || 0) + (player?.stats?.Duels?.best_winstreak_mode_uhc_four || 0) + (player?.stats?.Duels?.best_winstreak_mode_uhc_meetup || 0)).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+                  <div style="margin-top: 837px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                          <h1 class="duels-header">Bridge Solo</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.bridge_duel_goals || 0).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_duel_bridge_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_duel_bridge_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_duel_wins || 0, player?.stats?.Duels?.bridge_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_duel_bridge_kills || 0, player?.stats?.Duels?.bridge_duel_bridge_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bridge_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bridge_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                          <h1 class="duels-header">Bridge Doubles</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.bridge_doubles_goals || 0).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_doubles_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_doubles_bridge_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_doubles_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_doubles_bridge_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_doubles_wins || 0, player?.stats?.Duels?.bridge_doubles_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_doubles_bridge_kills || 0, player?.stats?.Duels?.bridge_doubles_bridge_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bridge_doubles || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bridge_doubles || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                          <h1 class="duels-header">Bridge Fours</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.bridge_four_goals || 0).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_four_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_four_bridge_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_four_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_four_bridge_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_four_wins || 0, player?.stats?.Duels?.bridge_four_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_four_bridge_kills || 0, player?.stats?.Duels?.bridge_four_bridge_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bridge_four || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bridge_four || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                          <h1 class="duels-header">Bridge 2v2v2v2</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.bridge_2v2v2v2_goals || 0).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_2v2v2v2_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_2v2v2v2_bridge_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_2v2v2v2_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_2v2v2v2_bridge_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_2v2v2v2_wins || 0, player?.stats?.Duels?.bridge_2v2v2v2_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_2v2v2v2_bridge_kills || 0, player?.stats?.Duels?.bridge_2v2v2v2_bridge_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bridge_2v2v2v2 || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bridge_2v2v2v2 || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 1363px;position: absolute;">
+                    <div class="arcade_table">
+                     <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                        <h1 class="duels-header">Bridge 3v3v3v3</h1>
+                        <div class="content-center">
+                        <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.bridge_3v3v3v3_goals || 0).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_3v3v3v3_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_3v3v3v3_bridge_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_3v3v3v3_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bridge_3v3v3v3_bridge_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_3v3v3v3_wins || 0, player?.stats?.Duels?.bridge_3v3v3v3_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bridge_3v3v3v3_bridge_kills || 0, player?.stats?.Duels?.bridge_3v3v3v3_bridge_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bridge_3v3v3v3 || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bridge_3v3v3v3 || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                      </div>
+                      <div style="background-image: url(https://i.imgur.com/GNfH2LB.png;" class="arcade_package">
+                        <h1 class="duels-header">Bridge Overall</h1>
+                        <div class="content-center">
+                        <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${((player?.stats?.Duels?.bridge_duel_goals || 0) + (player?.stats?.Duels?.bridge_doubles_goals || 0) + (player?.stats?.Duels?.bridge_four_goals || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_goals || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_goals || 0)).toLocaleString()}</span><span class="white shadow">Goals</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.bridge_duel_wins || 0) + (player?.stats?.Duels?.bridge_doubles_wins || 0) + (player?.stats?.Duels?.bridge_four_wins || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_wins || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_wins || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.bridge_duel_bridge_kills || 0) + (player?.stats?.Duels?.bridge_doubles_bridge_kills || 0) + (player?.stats?.Duels?.bridge_four_bridge_kills || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_bridge_kills || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_bridge_kills || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.bridge_duel_losses || 0) + (player?.stats?.Duels?.bridge_doubles_losses || 0) + (player?.stats?.Duels?.bridge_four_losses || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_losses || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_losses || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.bridge_duel_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_doubles_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_four_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_bridge_deaths || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.bridge_duel_wins || 0) + (player?.stats?.Duels?.bridge_doubles_wins || 0) + (player?.stats?.Duels?.bridge_four_wins || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_wins || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_wins || 0)), ((player?.stats?.Duels?.bridge_duel_losses || 0) + (player?.stats?.Duels?.bridge_doubles_losses || 0) + (player?.stats?.Duels?.bridge_four_losses || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_losses || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_losses || 0)))} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.bridge_duel_bridge_kills || 0) + (player?.stats?.Duels?.bridge_doubles_bridge_kills || 0) + (player?.stats?.Duels?.bridge_four_bridge_kills || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_bridge_kills || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_bridge_kills || 0)), ((player?.stats?.Duels?.bridge_duel_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_doubles_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_four_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_2v2v2v2_bridge_deaths || 0) + (player?.stats?.Duels?.bridge_3v3v3v3_bridge_deaths || 0)))} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.current_winstreak_mode_bridge_duel || 0) + (player?.stats?.Duels?.current_winstreak_mode_bridge_doubles || 0) + (player?.stats?.Duels?.current_winstreak_mode_bridge_four || 0) + (player?.stats?.Duels?.current_winstreak_mode_bridge_2v2v2v2 || 0) + (player?.stats?.Duels?.current_winstreak_mode_bridge_3v3v3v3 || 0)).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.best_winstreak_mode_bridge_duel || 0) + (player?.stats?.Duels?.best_winstreak_mode_bridge_doubles || 0) + (player?.stats?.Duels?.best_winstreak_mode_bridge_four || 0) + (player?.stats?.Duels?.best_winstreak_mode_bridge_2v2v2v2 || 0) + (player?.stats?.Duels?.best_winstreak_mode_bridge_3v3v3v3 || 0)).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+                  <div style="margin-top: 1677px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/rwWgOg0.png;" class="arcade_package">
+                          <h1 class="duels-header">Op Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.op_duel_wins || 0, player?.stats?.Duels?.op_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.op_duel_kills|| 0, player?.stats?.Duels?.op_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_op_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_op_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/rwWgOg0.png;" class="arcade_package">
+                          <h1 class="duels-header">Op Doubles</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_doubles_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_doubles_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_doubles_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.op_doubles_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.op_doubles_wins || 0, player?.stats?.Duels?.op_doubles_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.op_doubles_kills || 0, player?.stats?.Duels?.op_doubles_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_op_doubles || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_op_doubles || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 1943px;position: absolute;">
+                    <div class="arcade_table">
+                     <div style="background-image: url(https://i.imgur.com/rwWgOg0.png;" class="arcade_package">
+                        <h1 class="duels-header">Op Overall</h1>
+                        <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.op_duel_wins || 0) + (player?.stats?.Duels?.op_doubles_wins || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.op_duel_kills || 0) + (player?.stats?.Duels?.op_doubles_kills || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.op_duel_losses || 0) + (player?.stats?.Duels?.op_doubles_losses || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.op_duel_deaths || 0) + (player?.stats?.Duels?.op_doubles_deaths || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.op_duel_wins || 0) + (player?.stats?.Duels?.op_doubles_wins || 0)), ((player?.stats?.Duels?.op_duel_losses || 0) + (player?.stats?.Duels?.op_doubles_losses || 0)))} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.op_duel_kills || 0) + (player?.stats?.Duels?.op_doubles_kills || 0)), ((player?.stats?.Duels?.op_duel_deaths || 0) + (player?.stats?.Duels?.op_doubles_deaths || 0)))} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.current_winstreak_mode_op_duel || 0) + (player?.stats?.Duels?.current_winstreak_mode_op_doubles || 0)).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.best_winstreak_mode_op_duel || 0) + (player?.stats?.Duels?.best_winstreak_mode_op_doubles || 0)).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+                  <div style="margin-top: 2253px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/3nvY4vF.png" class="arcade_package">
+                          <h1 class="duels-header">SkyWars Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sw_duel_wins || 0, player?.stats?.Duels?.sw_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sw_duel_kills || 0, player?.stats?.Duels?.sw_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_sw_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_sw_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/3nvY4vF.png" class="arcade_package">
+                          <h1 class="duels-header">SkyWars Doubles</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_doubles_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_doubles_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_doubles_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sw_doubles_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sw_doubles_wins || 0, player?.stats?.Duels?.sw_doubles_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sw_doubles_kills || 0, player?.stats?.Duels?.sw_doubles_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_sw_doubles || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_sw_doubles || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 2523px;position: absolute;">
+                    <div class="arcade_table">
+                     <div style="background-image: url(https://i.imgur.com/3nvY4vF.png" class="arcade_package">
+                        <h1 class="duels-header">SkyWars Overall</h1>
+                        <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.sw_duel_wins || 0) + (player?.stats?.Duels?.sw_doubles_wins || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.sw_duel_kills || 0) + (player?.stats?.Duels?.sw_doubles_kills || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.sw_duel_losses || 0) + (player?.stats?.Duels?.sw_doubles_losses || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.sw_duel_deaths || 0) + (player?.stats?.Duels?.sw_doubles_deaths || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.sw_duel_wins || 0) + (player?.stats?.Duels?.sw_doubles_wins || 0)), ((player?.stats?.Duels?.sw_duel_losses || 0) + (player?.stats?.Duels?.sw_doubles_losses || 0)))} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.sw_duel_kills || 0) + (player?.stats?.Duels?.sw_doubles_kills || 0)), ((player?.stats?.Duels?.sw_duel_deaths || 0) + (player?.stats?.Duels?.sw_doubles_deaths || 0)))} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.current_winstreak_mode_sw_duel || 0) + (player?.stats?.Duels?.current_winstreak_mode_sw_doubles || 0)).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.best_winstreak_mode_sw_duel || 0) + (player?.stats?.Duels?.best_winstreak_mode_sw_doubles || 0)).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                      </div>
+                  </div>
+                  </div>
+                  <div style="margin-top: 2833px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/3eXJnBB.png" class="arcade_package">
+                          <h1 class="duels-header">Mega Walls Solo</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.mw_duels_class || "Unset")}</span><span class="white shadow">Class</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.mw_duel_wins || 0, player?.stats?.Duels?.mw_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.mw_duel_kills || 0, player?.stats?.Duels?.mw_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_mw_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_mw_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/3eXJnBB.png" class="arcade_package">
+                          <h1 class="duels-header">Mega Walls Doubles</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.mw_duels_class || "Unset")}</span><span class="white shadow">Class</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_doubles_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_doubles_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_doubles_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.mw_doubles_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.mw_doubles_wins || 0, player?.stats?.Duels?.mw_doubles_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.mw_doubles_kills || 0, player?.stats?.Duels?.mw_doubles_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_mw_doubles || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_mw_doubles || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                  <div style="margin-top: 3103px;position: absolute;">
+                  <div class="arcade_table">
+                      <div style="background-image: url(https://i.imgur.com/3eXJnBB.png" class="arcade_package">
+                        <h1 class="duels-header">Mega Walls Overall</h1>
+                        <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.mw_duels_class || "Unset")}</span><span class="white shadow">Class</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.mw_duel_wins || 0) + (player?.stats?.Duels?.mw_doubles_wins || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Duels?.mw_duel_kills || 0) + (player?.stats?.Duels?.mw_doubles_kills || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.mw_duel_losses || 0) + (player?.stats?.Duels?.mw_doubles_losses || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Duels?.mw_duel_deaths || 0) + (player?.stats?.Duels?.mw_doubles_deaths|| 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.mw_duel_wins || 0) + (player?.stats?.Duels?.mw_doubles_wins || 0)), ((player?.stats?.Duels?.mw_duel_losses || 0) + (player?.stats?.Duels?.mw_doubles_losses || 0)))} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(((player?.stats?.Duels?.mw_duel_kills || 0) + (player?.stats?.Duels?.mw_doubles_kills || 0)), ((player?.stats?.Duels?.mw_duel_deaths || 0) + (player?.stats?.Duels?.mw_doubles_deaths|| 0)))} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.current_winstreak_mode_mw_duel || 0) + (player?.stats?.Duels?.current_winstreak_mode_mw_doubles || 0)).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Duels?.best_winstreak_mode_mw_duel || 0) + (player?.stats?.Duels?.best_winstreak_mode_mw_doubles || 0)).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                      </div>
+                      </div>
+                </div>
+                </div>
+                  <div style="margin-top: 3403px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/guEJ38p.png" class="arcade_package">
+                          <h1 class="duels-header">Classic Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.classic_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.classic_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.classic_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.classic_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.classic_duel_wins || 0, player?.stats?.Duels?.classic_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.classic_duel_kills || 0, player?.stats?.Duels?.classic_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_classic_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_classic_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/guEJ38p.png" class="arcade_package">
+                          <h1 class="duels-header">Bow Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bow_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bow_duel_wins || 0, player?.stats?.Duels?.bow_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bow_duel_kills || 0, player?.stats?.Duels?.bow_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bow_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bow_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+                  <div style="margin-top: 3683px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/sq4wZJa.png" class="arcade_package">
+                          <h1 class="duels-header">NoDebuff Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.potion_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.potion_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.potion_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.potion_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.potion_duel_wins || 0, player?.stats?.Duels?.potion_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.potion_duel_kills || 0, player?.stats?.Duels?.potion_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_potion_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_potion_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/sq4wZJa.png" class="arcade_package">
+                          <h1 class="duels-header">Combo Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.combo_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.combo_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.combo_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.combo_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.combo_duel_wins || 0, player?.stats?.Duels?.combo_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.combo_duel_kills || 0, player?.stats?.Duels?.combo_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_combo_duel|| 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_combo_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+
+                  <div style="margin-top: 3963px;position: absolute;">
+                      <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/2mpnMXL.png" class="arcade_package">
+                          <h1 class="duels-header">Sumo Solo</h1>
+                          <div class="content-center">
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sumo_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.sumo_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sumo_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.sumo_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sumo_duel_wins || 0, player?.stats?.Duels?.sumo_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.sumo_duel_kills || 0, player?.stats?.Duels?.sumo_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_sumo_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_sumo_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                        <div style="background-image: url(https://i.imgur.com/K98fpZK.png" class="arcade_package">
+                          <h1 class="duels-header">Blitz Solo</h1>
+                          <div class="content-center">
+                          <div style="margin-top:-85px"><a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span style="margin-right:10px;color:#93d2f2;">${(player?.stats?.Duels?.blitz_duels_kit || "Unset")}</span><span class="white shadow">Kit</span></a></div>
+                            <div style="margin-top: -40px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.blitz_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.blitz_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                            </div>
+                            <div style="margin-top: -20px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.blitz_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.blitz_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                            </div>
+                            <div style="margin-top: 0px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.blitz_duel_wins || 0, player?.stats?.Duels?.blitz_duel_losses || 0)} WLR</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.blitz_duel_kills || 0, player?.stats?.Duels?.blitz_duel_deaths || 0)} KDR</span></a>
+                            </div>
+                            <div style="margin-top: 60px;" class="duelcards">
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_blitz_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                              <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_blitz_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                  </div>
+
+                    <div style="margin-top: 4243px;position: absolute;">
+                    <div class="arcade_table">
+                        <div style="background-image: url(https://i.imgur.com/j4QgF5h.png" class="arcade_package">
+                          <h1 class="duels-header">Bow Spleef Solo</h1>
+                          <div class="content-center">
+                          <div style="margin-top: -40px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bowspleef_duel_wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Duels?.bowspleef_duel_kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                        </div>
+                        <div style="margin-top: -20px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bowspleef_duel_losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Duels?.bowspleef_duel_deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                        </div>
+                        <div style="margin-top: 0px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bowspleef_duel_wins || 0, player?.stats?.Duels?.bowspleef_duel_losses || 0)} WLR</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Duels?.bowspleef_duel_kills || 0, player?.stats?.Duels?.bowspleef_duel_deaths || 0)} KDR</span></a>
+                        </div>
+                        <div style="margin-top: 60px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.current_winstreak_mode_bowspleef_duel || 0).toLocaleString()}</span><span class="white shadow">Current Ws</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Duels?.best_winstreak_mode_bowspleef_duel || 0).toLocaleString()}</span><span class="white shadow">Best Ws</span></a>
+                        </div>
+                      </div>
+                        </div>
+                  </div>
+                  </div>
+                  </div>
                   </div>
                 </div>
                  <div class="tab">
@@ -2485,8 +3630,9 @@
               this.status()
               this.totemLoader()
               this.ptableLoader()
-              this.bwButtonLoader()
+              this.gamesButtonLoader()
               this.bwBarLoader()
+              this.blitzKitImageLoader()
               
               document.getElementById("zombies_table").addEventListener("click", this.showZomTable);
 
