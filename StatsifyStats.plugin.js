@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.1.0
+ * @version 1.1.1
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,16 +14,13 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.1.0",
+			"version": "1.1.1",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
       "added": {
-        "Build Battle": "Build Battle stats are now available",
-        "Blitz": "Blitz stats are now available",
-        "CvC": "CvC stats are now available",
-        "Duels": "Duels stats are now available",
+        "games": "Finished the main games.",
       }
 		}
 	};
@@ -101,6 +98,7 @@
             let ptableLoad;
             let today;
             let lb;
+            let rr;
             
 
 
@@ -258,6 +256,33 @@
                   .duels-button-top:active{background-color: var(--brand-experiment-600)}
                   .duels-header{font-family:Minecraftia;text-shadow:1px 1px black;color:#2c9cf3;font-weight:500;margin-top:20px;font-size: 16px;display:flex;justify-content:center;}
                   .duelcards{display: grid;grid-template-columns: 150px 150px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 35px;}
+                  .mw-display{position:absolute;margin-left: 115px;margin-top: 185px;}
+                  .mwimgstats2{display: grid;grid-template-columns: 280px 280px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 125px;}
+                  .mm-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .mm-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .mm-button-top:active{background-color: var(--brand-experiment-600)}
+                  #sw-select select {right: 20px;padding-left: 13px;padding-bottom: 10px;padding-top: 10px;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;border: none;-webkit-appearance: none;padding-right: 12px;}
+                  #sw-select select:hover{background-color: var(--brand-experiment-560)}
+                  #sw-select select:active{background-color: var(--brand-experiment-600)}
+                  #sw-select option{background-color: var(--brand-experiment);}
+                  .sw-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .sw-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .sw-button-top:active{background-color: var(--brand-experiment-600)}
+                  #ranked_rating {margin-top: 180px;}
+                  .rswimgstats2{display: grid;grid-template-columns: 280px 280px;text-align: center;white-space:nowrap;grid-gap: 115px;}
+                  .sh-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .sh-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .sh-button-top:active{background-color: var(--brand-experiment-600)}
+                  .suhc-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .suhc-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .suhc-button-top:active{background-color: var(--brand-experiment-600)}
+                  .tntcards3{display: grid;grid-template-columns: 110px 110px 110px;position: absolute;text-align: center;white-space:nowrap;grid-gap: 0px;}
+                  .uhc-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .uhc-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .uhc-button-top:active{background-color: var(--brand-experiment-600)}
+                  .wr-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .wr-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .wr-button-top:active{background-color: var(--brand-experiment-600)}
               `);
 
 
@@ -341,7 +366,6 @@
                 d: { color: "light_purple" },
                 e: { color: "yellow" },
                 f: { color: "white" },
-                l: { color: "bold" },
               }
 
             var pet = {
@@ -800,12 +824,25 @@
         getLeaderboard() {
           BDFDB.LibraryRequires.request(`https://api.hypixel.net/leaderboards?key=${apiKey}`, (err, res) => {
             var body  = JSON.parse(res.body)
-
+ 
             if (res.statusCode == 200) {
               lb = body?.leaderboards
             }
               else BDFDB.NotificationUtils.toast("An error occurred with hypixel's leaderboards", {type: "danger"})
-
+ 
+            if (body) this.getRankedSkywars()
+          })
+        }
+        
+        getRankedSkywars() {
+          BDFDB.LibraryRequires.request(`https://api.hypixel.net/player/ranked/skywars?key=${apiKey}&uuid=${uuid}`, (err, res) => {
+            let body  = JSON.parse(res.body)
+ 
+            if (res.statusCode == 200) {
+              rr = body?.result
+            }
+              else BDFDB.NotificationUtils.toast("An error occurred with hypixel's ranked stats", {type: "danger"})
+ 
             if (body) this.getHyapi()
           })
         }
@@ -1017,7 +1054,7 @@
         ratio = (n1 = 0, n2 = 0) => isFinite(n1 / n2) ? + (n1 / n2).toFixed(2) : isFinite(n2) ? 0 : Infinity
 
         mcColorParser = text => {
-            var splitText = text.split("§").slice(1)
+            var splitText = text.replace(/§l/g, "").split("§").slice(1)
             var finalText = ""
           
             splitText.forEach(parts => finalText += `<span class="${colors[parts[0]]?.color == undefined ? `white` : colors[parts[0]].color} shadow">${parts.split("").slice(1).join("")}</span>`)
@@ -1558,7 +1595,7 @@
                     case "duel-allb":
                       document.querySelectorAll(".duels-display").forEach((element) => {
                         element.style.visibility = 'hidden'
-                        document.getElementById("duel-tabcontent").style.height = '5000px'
+                        document.getElementById("duel-tabcontent").style.height = '4570px'
                         document.getElementById("duel_all").style.visibility = ""
                       })
                     break
@@ -1578,6 +1615,242 @@
                 kitpage.style.visibility = '';
                 bsgstats.style.visibility = 'hidden';
               }
+            })
+            document.getElementById("mw-kitsb").addEventListener("click", function(){
+              let kitpage = document.getElementById("mw-kits")
+              let mwstats = document.getElementById("mw-stats")
+
+              if (kitpage.style.visibility !== 'hidden') {
+                kitpage.style.visibility = 'hidden';
+                mwstats.style.visibility = '';
+                
+              }
+             else {
+                kitpage.style.visibility = '';
+                mwstats.style.visibility = 'hidden';
+              }
+            })
+            document.querySelectorAll(".mm-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "mm-as":
+                      document.querySelectorAll(".mm-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("mm_as").style.visibility = ""
+                      })
+                    break
+                    case "mm-solo":
+                      document.querySelectorAll(".mm-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("mm_solo").style.visibility = ""
+                      })
+                    break
+                    case "mm-overall":
+                      document.querySelectorAll(".mm-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("mm_overall").style.visibility = ""
+                      })
+                    break
+                    case "mm-double":
+                      document.querySelectorAll(".mm-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("mm_double").style.visibility = ""
+                      })
+                    break
+                    case "mm-infection":
+                      document.querySelectorAll(".mm-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("mm_infection").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll("[id=sw-select] .sw-button-top").forEach(button => {
+              button.addEventListener("click", e => {
+                e.preventDefault()
+                switch (e?.target?.id) {
+                  case "sw-overall": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_overall").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "sw-mega": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_mega").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "sw-ranked": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_ranked").style.visibility = ""
+                    })
+                  }
+                  break
+                }
+              })
+            })
+            document.querySelectorAll("[id=sw-select] select").forEach(button => {
+              button.addEventListener("click", e => {
+                e.preventDefault()
+                switch (e?.target?.value) {
+                  case "Solo Overall": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_solo_overall").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "Solo Normal": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_solo_normal").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "Solo Insane": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_solo_insane").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "Doubles Overall": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_double_overall").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "Doubles Normal": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_double_normal").style.visibility = ""
+                    })
+                  }
+                  break
+                  case "Doubles Insane": {
+                    document.querySelectorAll(".sw-display").forEach((element) => {
+                      element.style.visibility = 'hidden'
+                      document.getElementById("sw_double_insane").style.visibility = ""
+                    })
+                  }
+                  break
+                }
+              })
+            })
+            document.querySelectorAll(".sh-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "sh-solo":
+                      document.querySelectorAll(".sh-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("sh_solo").style.visibility = ""
+                      })
+                    break
+                    case "sh-2v2":
+                      document.querySelectorAll(".sh-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("sh_2v2").style.visibility = ""
+                      })
+                    break
+                    case "sh-overall":
+                      document.querySelectorAll(".sh-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("sh_overall").style.visibility = ""
+                      })
+                    break
+                    case "sh-2v2v2":
+                      document.querySelectorAll(".sh-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("sh_2v2v2").style.visibility = ""
+                      })
+                    break
+                    case "sh-kits":
+                      document.querySelectorAll(".sh-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("sh_kits").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll(".suhc-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "suhc-solos":
+                      document.querySelectorAll(".suhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("suhc_solos").style.visibility = ""
+                      })
+                    break
+                    case "suhc-overall":
+                      document.querySelectorAll(".suhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("suhc_overall").style.visibility = ""
+                      })
+                    break
+                    case "suhc-teams":
+                      document.querySelectorAll(".suhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("suhc_teams").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll(".uhc-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "uhc-solo":
+                      document.querySelectorAll(".uhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("uhc_solo").style.visibility = ""
+                      })
+                    break
+                    case "uhc-overall":
+                      document.querySelectorAll(".uhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("uhc_overall").style.visibility = ""
+                      })
+                    break
+                    case "uhc-teams":
+                      document.querySelectorAll(".uhc-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("uhc_teams").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll(".wr-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "wr-stats":
+                      document.querySelectorAll(".wr-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("wr-tabcontent").style.height = '532px'
+                        document.getElementById("wr_stats").style.visibility = ""
+                      })
+                    break
+                    case "wr-kits":
+                      document.querySelectorAll(".wr-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("wr-tabcontent").style.height = '602px'
+                        document.getElementById("wr_kits").style.visibility = ""
+                      })
+                    break
+                  }
+              })
             })
           }
 
@@ -1840,22 +2113,177 @@
             if (wins < Infinity) return "§5Godlike X"
           }
 
+          getMmMainMode() {
+            let as = player?.stats?.MurderMystery?.games_MURDER_ASSASSINS || 0
+            let solo = player?.stats?.MurderMystery?.games_MURDER_CLASSIC || 0
+            let doubles = player?.stats?.MurderMystery?.games_MURDER_DOUBLE_UP || 0
+            let infection = player?.stats?.MurderMystery?.games_MURDER_INFECTION || 0
+            
+            switch(Math.max(as, solo, doubles, infection)) {
+              case as: return "Assasins"
+              case solo: return "Classic Solo"
+              case doubles: return "Classic Double Up"
+              case infection: return "Infection"
+            }
+          }
+
+          getSwBracketColor(level) {
+            let number = this.LevelParser(level)
+
+            if (number < 10) return "§f"
+            if (number < 15) return "§6"
+            if (number < 20) return "§b"
+            if (number < 25) return "§2"
+            if (number < 30) return "§3"
+            if (number < 35) return "§4"
+            if (number < 40) return "§d"
+            if (number < 45) return "§9"
+            if (number < 50) return "§5"
+            if (number < Infinity) return "§c"
+
+            return "§f"
+          }
+
+          getFormatedSkywarsBracket() {
+            return `${this.mcColorParser(`${this.getSwBracketColor(player?.stats?.SkyWars?.levelFormatted)}[${player?.stats?.SkyWars?.levelFormatted}${this.getSwBracketColor(player?.stats?.SkyWars?.levelFormatted)}]`)}`
+          }
+
+          getSwMainMode() {
+            let solo = player?.stats?.SkyWars?.games_solo || 0
+            let double = player?.stats?.SkyWars?.games_team || 0
+            let mega = player?.stats?.SkyWars?.games_mega || 0
+            let lab = player?.stats?.SkyWars?.games_lab || 0
+            let ranked = player?.stats?.SkyWars?.games_ranked || 0
+
+            switch (Math.max(solo, double, mega, lab, ranked)) {
+              case solo: return "Solo"
+              case double: return "Doubles"
+              case mega: return "Mega"
+              case lab: return "Lab"
+              case ranked: return "Ranked"
+            }
+          }
+
+          rankedKitParser (kit) {
+            var text = (kit || "Random").replace("kit_ranked_ranked_", "").replace(/_/g, " ").toLowerCase()
+
+            return this.toTitleCase(text)
+          }
+
+          rankedRatingLoader() {
+            let body = document.getElementById("ranked_rating")
+
+            for(var i = 1; i < 6; i++) {
+              let date = new Date()
+              date.setDate(0)
+              date.setMonth(date.getMonth() - i)
+
+              let year = date.getFullYear().toString().substr(2,2)
+              let month = date.getMonth() + 1
+              let cleanMonth = ("0" + (date.getMonth() + 1)).slice(-2)
+
+              let reqDate = month + "_" + year
+              let finalDate = cleanMonth + "-" + year
+
+              let rating = player?.stats?.SkyWars?.[`SkyWars_skywars_rating_${reqDate}_rating`] || 0
+              let position = player?.stats?.SkyWars?.[`SkyWars_skywars_rating_${reqDate}_position`] || 0
+
+              let table = `<h1 class="rswimgstats2" style="margin-top:15px;">
+              <a></a>
+              <a><span style="font-size:20px;font-family:Minecraftia" class="white shadow">${finalDate}:</span><span style="margin-left:10px;font-size:20px;font-family:Minecraftia" class="gold shadow">${(rating).toLocaleString()} (#${(position).toLocaleString()})</span></a>
+              </h1>`
+
+              body.innerHTML += table
+            }
+          }
+
+          getShMainMode () {
+            let solo = player?.stats?.SuperSmash?.games_normal || 0
+            let doubles = player?.stats?.SuperSmash?.games_2v2 || 0
+            let teams = player?.stats?.SuperSmash?.games_teams || 0
+
+            switch(Math.max(solo, doubles, teams)) {
+              case solo: return "Solo"
+              case doubles: return "2v2"
+              case teams: return "2v2v2"
+            }
+          }
+
+          getSpeedUhcMainMode () {
+            let solo = player?.stats?.SpeedUHC?.games_solo || 0
+            let teams = player?.stats?.SpeedUHC?.games_team || 0
+
+            switch(Math.max(solo, teams)) {
+              case solo: return "Solos"
+              case teams: return "Teams"
+            }
+          }
+
+          getSpeedUhcTitle (score) {
+            if (score < 50) return {"level": 1, "formattedLevel": "§d[1❋]", "title": "Hiker"}
+            if (score < 300) return {"level": 2, "formattedLevel": "§d[2❋]", "title": "Jogger"}
+            if (score < 1050) return {"level": 3, "formattedLevel": "§d[3❋]", "title": "Runner"}
+            if (score < 2550) return {"level": 4, "formattedLevel": "§d[4❋]", "title": "Sprinter"}
+            if (score < 5550) return {"level": 5, "formattedLevel": "§d[5❋]", "title": "Turbo"}
+            if (score < 15550) return {"level": 6, "formattedLevel": "§d[6❋]", "title": "Sanic"}
+            if (score < 30550) return {"level": 7, "formattedLevel": "§d[7❋]", "title": "Hot Rod"}
+            if (score < 55550) return {"level": 8, "formattedLevel": "§d[8❋]", "title": "Bolt"}
+            if (score < 85550) return {"level": 9, "formattedLevel": "§d[9❋]", "title": "Zoom"}
+            if (score < Infinity) return {"level": 10, "formattedLevel": "§d[10❋]", "title": "God Speed"}
+
+            return {"level": 1, "formattedLevel": "§d[1❋]", "title": "Hiker"}
+          }
+          
+          str_pad_left(string,pad,length) {
+            return (new Array(length+1).join(pad)+string).slice(-length);
+          }
+
+          secToTime (time) {
+            let minutes = Math.floor(time / 60);
+            let seconds = time - minutes * 60;
+            let hours = Math.floor(time / 3600);
+            time = time - hours * 3600;
+
+            let finalTime = this.str_pad_left(minutes,'0',2)+':'+this.str_pad_left(seconds,'0',2);
+
+              return finalTime
+          }
+
+          getUhcTitle (score) {
+            if (score < 10) return {"level": 1, "formattedLevel": "§6[1✫]", "title": "Recruit"}
+            if (score < 60) return {"level": 2, "formattedLevel": "§6[2✫]", "title": "Initiate"}
+            if (score < 210) return {"level": 3, "formattedLevel": "§6[3✫]", "title": "Soldier"}
+            if (score < 460) return {"level": 4, "formattedLevel": "§6[4✫]", "title": "Sergeant"}
+            if (score < 960) return {"level": 5, "formattedLevel": "§6[5✫]", "title": "Knight"}
+            if (score < 1710) return {"level": 6, "formattedLevel": "§6[6✫]", "title": "Captain"}
+            if (score < 2710) return {"level": 7, "formattedLevel": "§6[7✫]", "title": "Centurion"}
+            if (score < 5210) return {"level": 8, "formattedLevel": "§6[8✫]", "title": "Gladiator"}
+            if (score < 10210) return {"level": 9, "formattedLevel": "§6[9✫]", "title": "Warlord"}
+            if (score < 13210) return {"level": 10, "formattedLevel": "§6[10✫]", "title": "Champion"}
+            if (score < 16210) return {"level": 11, "formattedLevel": "§6[11✫]", "title": "Champion"}
+            if (score < 19210) return {"level": 12, "formattedLevel": "§6[12✫]", "title": "Bronze Champion"}
+            if (score < 22210) return {"level": 13, "formattedLevel": "§6[13✫]", "title": "Silver Champion"}
+            if (score < 25210) return {"level": 14, "formattedLevel": "§6[14✫]", "title": "Gold Champion"}
+            if (score < Infinity) return {"level": 15, "formattedLevel": "§6[15✫]", "title": "High Champion"}
+
+            return {"level": 1, "formattedLevel": "§6[1✫]", "title": "Recruit"}
+          }
+
 
         popoverUpdater() {    
               let tempbres = document.getElementById("bodyResult")
   
-              var networkLevel = ((Math.sqrt(player.networkExp || 0 + 15312.5) - 125/Math.sqrt(2))/(25*Math.sqrt(2))).toFixed(0);
+              var networkLevel = ((Math.sqrt((player.networkExp || 0) + 15312.5) - 125/Math.sqrt(2))/(25*Math.sqrt(2))).toFixed(0);
 
               var rawgcolor = `${guild.guild ? guild.guild.tag ? ` ${body_guild_mcColor.mc}[${guild.guild.tag}${body_guild_mcColor.mc}]` : "" : ""}`
               gcolor = this.mcColorParser(rawgcolor)
 
               
-              this.loadProfile()
+              this.loadProfile() 
               this.loadGuildTab()
               this.petStats()
               this.todayDate()
 
-              console.log(this.getDuelsTitle(player?.stats?.Duels?.wins))
 
               tempbres.innerHTML = `<div>
                 
@@ -2292,7 +2720,7 @@
               </table>
               </div>
               </div>
-                    </div>
+                   </div>
                   </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck5">
@@ -2840,7 +3268,7 @@
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck9">
-                  <label class="tab-label" for="chck9">Dules</label>
+                  <label class="tab-label" for="chck9">Duels</label>
                   <div id="duel-tabcontent" style="height:532px;" class="tab-content">
                   <div style="margin-bottom:15px;" class="content-center">
                     <button id="duel-overallb" class="duels-button-top">Overall</button>
@@ -3519,60 +3947,930 @@
                   </div>
                   </div>
                 </div>
-                 <div class="tab">
+               <div class="tab">
+                  <button title="Display Kits" id="mw-kitsb" class="bsg-button-top">&#10066;</button>
                   <input class="input56" type="checkbox" id="chck10">
-                  <label class="tab-label" for="chck10">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck10">Mega Walls</label>
+                  <div style="height: 474px;"class="tab-content">
+                      <div class="mw-display content-center" style="visibility:hidden;" id="mw-kits">
+                      <div>
+                          <img style="transform: scale(1.2);" src="https://gen.plancke.io/mw/${uuid}/2.png">
+                      </div>
+                    </div>
+                    <div id="mw-stats" style="" class="content-center">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/7xwS2n6.png">
+                      <div class="bwimgtt" style="margin-top:90px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px;text-shadow: 1px 1px 1px black;">${(player?.stats?.Walls3?.chosen_class  || "Unset").toLocaleString()}</span><span class="white shadow">Class</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.assists || 0).toLocaleString()}</span><span class="white shadow">Kill Assists</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.final_assists || 0).toLocaleString()}</span><span class="white shadow">Final Kill Assists</span></a>
+                      </div>
+                      <div style="margin-top: 160px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Walls3?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.witherDamage || 0).toLocaleString()}</span><span class="white shadow">Wither Damage</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Walls3?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.defender_kills || 0).toLocaleString()}</span><span class="white shadow">Defender Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Walls3?.wins || 0, player?.stats?.Walls3?.losses || 0).toLocaleString()}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls3?.wither_kills || 0).toLocaleString()}</span><span class="white shadow">Wither Kills</span></a>
+                      </div>
+                      <div style="margin-top: 290px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Walls3?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Walls3?.final_kills || 0).toLocaleString()}</span><span class="white shadow">Final Kills</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Walls3?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Walls3?.final_deaths || 0).toLocaleString()}</span><span class="white shadow">Final Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 350px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Walls3?.kills || 0 , player?.stats?.Walls3?.deaths || 0).toLocaleString()}</span><span class="white shadow">KDR</span></a>
+                        <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Walls3?.final_kills || 0, player?.stats?.Walls3?.final_deaths || 0).toLocaleString()}</span><span class="white shadow">FKDR</span></a>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck11">
-                  <label class="tab-label" for="chck11">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck11">Murder Mystery</label>
+                  <div style="height: 532px;"class="tab-content">
+                    <div style="margin-bottom:15px;" class="content-center">
+                      <button id="mm-as" class="mm-button-top">Assasins</button>
+                      <button id="mm-solo" class="mm-button-top">Classic Solo</button>
+                      <button id="mm-overall" class="mm-button-top">Overall</button>
+                      <button id="mm-double" class="mm-button-top">Classic Double Up</button>
+                      <button id="mm-infection" class="mm-button-top">Infection v2</button>
+                    </div>
+                    <div class="mm-display content-center" style="visibility:hidden;" id="mm_as">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/n9z9cDb.png">
+                      <div class="bwimgtt" style="margin-top:85px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getMmMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.was_hero_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Hero Wins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.suicides_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Suicides</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.wins_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.kills_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MurderMystery?.games_MURDER_ASSASSINS || 0) - (player?.stats?.MurderMystery?.wins_MURDER_ASSASSINS || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.deaths_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 250px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.wins_MURDER_ASSASSINS || 0, (player?.stats?.MurderMystery?.games_MURDER_ASSASSINS || 0) - (player?.stats?.MurderMystery?.wins_MURDER_ASSASSINS || 0))}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.kills_MURDER_ASSASSINS || 0, player?.stats?.MurderMystery?.deaths_MURDER_ASSASSINS || 0)}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.knife_kills_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Knife Kills</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.bow_kills_MURDER_ASSASSINS || 0).toLocaleString()}</span><span class="white shadow">Bow Kills</span></a>
+                      </div>
+                      <div style="margin-top: 360px;position:absolute;" class="content-center"><a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.thrown_knife_kills_MURDER_ASSASSINS  || 0).toLocaleString()}</span><span class="white shadow">Knife Thrown Kills</span></a></div>
+                    </div>
+                    <div class="mm-display content-center" style="visibility:hidden;" id="mm_solo">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/YhlBi6B.png">
+                      <div class="bwimgtt" style="margin-top:85px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getMmMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.was_hero_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Hero Wins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.suicides_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Suicides</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.wins_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.kills_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MurderMystery?.games_MURDER_CLASSIC || 0) - (player?.stats?.MurderMystery?.wins_MURDER_CLASSIC || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.deaths_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 250px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.wins_MURDER_CLASSIC || 0, (player?.stats?.MurderMystery?.games_MURDER_CLASSIC || 0) - (player?.stats?.MurderMystery?.wins_MURDER_CLASSIC || 0))}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.kills_MURDER_CLASSIC || 0, player?.stats?.MurderMystery?.deaths_MURDER_CLASSIC || 0)}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.knife_kills_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Knife Kills</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.bow_kills_MURDER_CLASSIC || 0).toLocaleString()}</span><span class="white shadow">Bow Kills</span></a>
+                      </div>
+                      <div style="margin-top: 360px;position:absolute;" class="content-center"><a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.thrown_knife_kills_MURDER_CLASSIC  || 0).toLocaleString()}</span><span class="white shadow">Knife Thrown Kills</span></a></div>
+                    </div>
+                    <div class="mm-display content-center" style="" id="mm_overall">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/Z71iBgW.png">
+                      <div class="bwimgtt" style="margin-top:85px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getMmMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.was_hero || 0).toLocaleString()}</span><span class="white shadow">Hero Wins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.suicides || 0).toLocaleString()}</span><span class="white shadow">Suicides</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MurderMystery?.games || 0) - (player?.stats?.MurderMystery?.wins || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 250px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.wins || 0, (player?.stats?.MurderMystery?.games || 0) - (player?.stats?.MurderMystery?.wins || 0))}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.kills || 0, player?.stats?.MurderMystery?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.knife_kills || 0).toLocaleString()}</span><span class="white shadow">Knife Kills</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.bow_kills || 0).toLocaleString()}</span><span class="white shadow">Bow Kills</span></a>
+                      </div>
+                      <div style="margin-top: 360px;position:absolute;" class="content-center"><a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.thrown_knife_kills  || 0).toLocaleString()}</span><span class="white shadow">Knife Thrown Kills</span></a></div>
+                    </div>
+                    <div class="mm-display content-center" style="visibility:hidden;" id="mm_double">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/9KZ2fvQ.png">
+                      <div class="bwimgtt" style="margin-top:85px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getMmMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.was_hero_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Hero Wins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.suicides_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Suicides</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.wins_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.kills_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MurderMystery?.games_MURDER_DOUBLE_UP || 0) - (player?.stats?.MurderMystery?.wins_MURDER_DOUBLE_UP || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.deaths_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 250px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.wins_MURDER_DOUBLE_UP || 0, (player?.stats?.MurderMystery?.games_MURDER_DOUBLE_UP || 0) - (player?.stats?.MurderMystery?.wins_MURDER_DOUBLE_UP || 0))}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.kills_MURDER_DOUBLE_UP || 0, player?.stats?.MurderMystery?.deaths_MURDER_DOUBLE_UP || 0)}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.knife_kills_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Knife Kills</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.bow_kills_MURDER_DOUBLE_UP || 0).toLocaleString()}</span><span class="white shadow">Bow Kills</span></a>
+                      </div>
+                      <div style="margin-top: 360px;position:absolute;" class="content-center"><a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.thrown_knife_kills_MURDER_DOUBLE_UP  || 0).toLocaleString()}</span><span class="white shadow">Knife Thrown Kills</span></a></div>
+                    </div>
+                    <div class="mm-display content-center" style="visibility:hidden;" id="mm_infection">
+                      <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/6DAwzaA.png">
+                      <div class="bwimgtt" style="margin-top:85px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getMmMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                      <div style="margin-top: 430px;" class="bsgimgstats3">
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.was_hero_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Hero Wins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.coins  || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                        <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.suicides_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Suicides</span></a>
+                      </div>
+                      <div style="margin-top: 190px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.wins_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.kills_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      </div>
+                      <div style="margin-top: 220px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.MurderMystery?.games_MURDER_INFECTION || 0) - (player?.stats?.MurderMystery?.wins_MURDER_INFECTION || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.deaths_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      </div>
+                      <div style="margin-top: 250px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.wins_MURDER_INFECTION || 0, (player?.stats?.MurderMystery?.games_MURDER_INFECTION || 0) - (player?.stats?.MurderMystery?.wins_MURDER_INFECTION || 0))}</span><span class="white shadow">WLR</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.MurderMystery?.kills_MURDER_INFECTION || 0, player?.stats?.MurderMystery?.deaths_MURDER_INFECTION || 0)}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div style="margin-top: 320px;" class="mwimgstats2">
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.knife_kills_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Knife Kills</span></a>
+                        <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.bow_kills_MURDER_INFECTION || 0).toLocaleString()}</span><span class="white shadow">Bow Kills</span></a>
+                      </div>
+                      <div style="margin-top: 360px;position:absolute;" class="content-center"><a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.MurderMystery?.thrown_knife_kills_MURDER_INFECTION  || 0).toLocaleString()}</span><span class="white shadow">Knife Thrown Kills</span></a></div>
+                    </div>
                   </div>
                 </div>
                <div class="tab">
                   <input class="input56" type="checkbox" id="chck12">
-                  <label class="tab-label" for="chck12">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck12">SkyWars</label>
+                  <div style="height: 532px;"class="tab-content">
+                  <div id="sw-select" class="content-center">
+                    <select>
+                      <option>Solo Overall</option>
+                      <option>Solo Normal</option>
+                      <option>Solo Insane</option>
+                    </select>
+                    <select>
+                      <option>Doubles Overall</option>
+                      <option>Doubles Normal</option>
+                      <option>Doubles Insane</option>
+                    </select>
+                    <button id="sw-overall" class="sw-button-top">Overall</button>
+                    <button id="sw-mega" class="sw-button-top">Mega</button>
+                    <button id="sw-ranked" class="sw-button-top">Ranked</button>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_solo_overall">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/nlY53sX.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_solo || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_solo || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_solo || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_solo || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_solo || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_solo || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_solo || 0, player?.stats?.SkyWars?.losses_solo || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_solo || 0, player?.stats?.SkyWars?.deaths_solo || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_solo_normal">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/2GxJhzs.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_solo || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_solo || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_solo_normal || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_solo_normal || 0, player?.stats?.SkyWars?.losses_solo_normal || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_solo_normal || 0, player?.stats?.SkyWars?.deaths_solo_normal || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_solo_insane">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/wrZksgY.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_solo || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_solo || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_solo_insane || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_solo_insane || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_solo_insane || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_solo_insane || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_solo_insane || 0, player?.stats?.SkyWars?.losses_solo_insane || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_solo_insane || 0, player?.stats?.SkyWars?.deaths_solo_insane || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_double_overall">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/zRHnaEh.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_team || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_team || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_team || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_team || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_team || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_team || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_team || 0, player?.stats?.SkyWars?.losses_team || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_team || 0, player?.stats?.SkyWars?.deaths_team || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_double_normal">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/265KK0a.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_team || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_team || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_team_normal || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_team_normal || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_team_normal || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_team_normal || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_team_normal || 0, player?.stats?.SkyWars?.losses_team_normal || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_team_normal || 0, player?.stats?.SkyWars?.deaths_team_normal || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_double_insane">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/Lwwc5LR.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_team || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_team || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_team_insane || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_team_insane || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_team_insane || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_team_insane || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_team_insane || 0, player?.stats?.SkyWars?.losses_team_insane || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_team_insane || 0, player?.stats?.SkyWars?.deaths_team_insane || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="" id="sw_overall">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/w2xWsNU.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins || 0, player?.stats?.SkyWars?.losses || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills || 0, player?.stats?.SkyWars?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_mega">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/ew9AKjz.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSwMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 440px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.assists_mega || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:14px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.chests_opened_mega || 0).toLocaleString()}</span><span class="white shadow">Chests Opened</span></a>
+                  </div>
+                  <div style="margin-top: 180px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_mega || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_mega || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 210px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_mega || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_mega || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 240px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_mega || 0, player?.stats?.SkyWars?.losses_mega || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_mega || 0, player?.stats?.SkyWars?.deaths_mega || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div style="margin-top: 320px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.souls || 0).toLocaleString()}</span><span class="white shadow">Souls</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.shard || 0).toLocaleString()}</span><span class="white shadow">Shards</span></a>
+                  </div>
+                  <div style="margin-top: 350px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.heads || 0).toLocaleString()}</span><span class="white shadow">Heads</span></a>
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.opals || 0).toLocaleString()}</span><span class="white shadow">Opals</span></a>
+                  </div>
+                  </div>
+                  <div class="sw-display content-center" style="visibility:hidden;" id="sw_ranked">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/XcvX4tM.png">
+                  <div class="bwimgtt" style="margin-top:18px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1><span></span>${this.getFormatedSkywarsBracket()} ${displayName} ${gcolor}</h1></a></div>
+                  <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.rankedKitParser(player?.stats?.SkyWars?.activeKit_RANKED)}</span><span style="color:#F2F2F2">Active Kit</span></a></div>
+                  <div style="margin-top: 440px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(rr?.score || 0).toLocaleString()}</span><span class="white shadow">Current Rating</span></a>
+                    <a class="nowrap" style="font-size:16px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">#${(rr?.position || 0).toLocaleString()}</span><span class="white shadow">Current Position</span></a>
+                  </div>
+                  <div style="margin-top: 170px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.wins_ranked || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                  </div>
+                  <div style="margin-top: 200px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.losses_ranked|| 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                  </div>
+                  <div style="margin-top: 230px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.wins_ranked || 0, player?.stats?.SkyWars?.losses_ranked || 0)}</span><span class="white shadow">WLR</span></a>
+                  </div>
+                  <div style="margin-top: 310px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.kills_ranked || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                  </div>
+                  <div style="margin-top: 340px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SkyWars?.deaths_ranked|| 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                  </div>
+                  <div style="margin-top: 370px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SkyWars?.kills_ranked || 0, player?.stats?.SkyWars?.deaths_ranked || 0)}</span><span class="white shadow">KDR</span></a>
+                  </div>
+                  <div id="ranked_rating">
+                  </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck13">
-                  <label class="tab-label" for="chck13">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck13">Smash Heroes</label>
+                  <div style="height: 532px;"class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="sh-solo" class="sh-button-top">Solo</button>
+                    <button id="sh-2v2" class="sh-button-top">2v2</button>
+                    <button id="sh-overall" class="sh-button-top">Overall</button>
+                    <button id="sh-2v2v2" class="sh-button-top">2v2v2</button>
+                    <button id="sh-kits" class="sh-button-top">Kits</button>
+                  </div>
+                  <div class="sh-display content-center" style="visibility:hidden;" id="sh_solo">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/u2Hdgqe.png">
+                    <div class="bwimgtt" style="margin-top:93px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getShMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.wins_normal || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.kills_normal  || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.losses_normal  || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.deaths_normal  || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.wins_normal  || 0, player?.stats?.SuperSmash?.losses_normal  || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.kills_normal  || 0, player?.stats?.SuperSmash?.deaths_normal  || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashLevel || 0).toLocaleString()}</span><span class="white shadow">Level</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashed_normal  || 0).toLocaleString()}</span><span class="white shadow">Smashed</span></a>
+                    </div>
+                  </div>
+                  <div class="sh-display content-center" style="visibility:hidden;" id="sh_2v2">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/JgAwDQp.png">
+                    <div class="bwimgtt" style="margin-top:93px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getShMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.wins_2v2 || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.kills_2v2 || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.losses_2v2 || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.deaths_2v2 || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.wins_2v2 || 0, player?.stats?.SuperSmash?.losses_2v2 || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.kills_2v2 || 0, player?.stats?.SuperSmash?.deaths_2v2 || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashLevel || 0).toLocaleString()}</span><span class="white shadow">Level</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashed_2v2 || 0).toLocaleString()}</span><span class="white shadow">Smashed</span></a>
+                    </div>
+                  </div>
+                  <div class="sh-display content-center" style="" id="sh_overall">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/027j3cE.png">
+                    <div class="bwimgtt" style="margin-top:93px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getShMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.wins || 0, player?.stats?.SuperSmash?.losses || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.kills || 0, player?.stats?.SuperSmash?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashLevel || 0).toLocaleString()}</span><span class="white shadow">Level</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashed || 0).toLocaleString()}</span><span class="white shadow">Smashed</span></a>
+                    </div>
+                  </div>
+                  <div class="sh-display content-center" style="visibility:hidden;" id="sh_2v2v2">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/rBJKVQD.png">
+                    <div class="bwimgtt" style="margin-top:93px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getShMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.wins_teams || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.kills_teams || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.losses_teams || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.deaths_teams || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.wins_teams || 0, player?.stats?.SuperSmash?.losses_teams || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SuperSmash?.kills_teams || 0, player?.stats?.SuperSmash?.deaths_teams || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashLevel || 0).toLocaleString()}</span><span class="white shadow">Level</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SuperSmash?.smashed_teams || 0).toLocaleString()}</span><span class="white shadow">Smashed</span></a>
+                    </div>
+                  </div>
+                  <div class="sh-display content-center" style="visibility:hidden;margin-left: 50px;margin-top: 185px;" id="sh_kits">
+                    <img style="transform: scale(1.2);" src="https://gen.plancke.io/supersmash/${uuid}/2.png">
+                  </div>
                   </div>
                 </div>
                <div class="tab">
                   <input class="input56" type="checkbox" id="chck14">
-                  <label class="tab-label" for="chck14">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck14">Speed UHC</label>
+                  <div style="height: 532px;"class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="suhc-solos" class="suhc-button-top">Solo</button>
+                    <button id="suhc-overall" class="suhc-button-top">Overall</button>
+                    <button id="suhc-teams" class="suhc-button-top">Teams</button>
                   </div>
+                  <div class="suhc-display content-center" style="visibility:hidden;" id="suhc_solos">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/Oh2u3UX.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSpeedUhcMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 230px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.wins_solo || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.kills_solo || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 260px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.losses_solo || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.deaths_solo || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 290px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.wins_solo || 0, player?.stats?.SpeedUHC?.losses_solo || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.kills_solo || 0, player?.stats?.SpeedUHC?.deaths_solo || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.score_solo || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                  </div>
+                  <div class="suhc-display content-center" style="" id="suhc_overall">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/pYnSV79.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSpeedUhcMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 230px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.wins_normal || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.kills_normal || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 260px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.losses_normal || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.deaths_normal || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 290px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.wins_normal || 0, player?.stats?.SpeedUHC?.losses_normal || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.kills_normal || 0, player?.stats?.SpeedUHC?.deaths_normal || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.score || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                  </div>
+                  <div class="suhc-display content-center" style="visibility:hidden;" id="suhc_teams">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/n6rmbuM.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:95px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getSpeedUhcMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 230px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.wins_team || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.kills_team || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 260px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.losses_team || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.deaths_team || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 290px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.wins_team || 0, player?.stats?.SpeedUHC?.losses_team || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.SpeedUHC?.kills_team || 0, player?.stats?.SpeedUHC?.deaths_team || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getSpeedUhcTitle(player?.stats?.SpeedUHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.SpeedUHC?.score_team || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                  </div>
+                </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck15">
-                  <label class="tab-label" for="chck15">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck15">TNT Games</label>
+                  <div class="tab-content" style="height:880px;">
+                  <div class="content-center">
+                  <div style="padding-top: 10px;"><a><span class="gold shadow" style="font-size:20px;font-family:Minecraftia;">${(player?.stats?.TNTGames?.coins || 0).toLocaleString()}</span><span class="white shadow" style="margin-left:7px;font-size:20px;font-family:Minecraftia;">Coins</span></a></div>
+                  <div style="margin-top: 40px;position: absolute;">
+                  <div class="arcade_table">
+                    <div style="background-image: url(https://i.imgur.com/hAmWLyY.png" class="arcade_package">
+                      <h1 class="duels-header">TNT Run</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="tntcards3">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.wins_tntrun || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.deaths_tntrun || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.TNTGames?.wins_tntrun || 0, player?.stats?.TNTGames?.deaths_tntrun || 0).toLocaleString()}</span><span class="white shadow">WLR</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:30px;">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.secToTime(player?.stats?.TNTGames?.record_tntrun || 0)}</span><span class="white shadow">Best Time</span></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background-image: url(https://i.imgur.com/hAmWLyY.png" class="arcade_package">
+                      <h1 class="duels-header">PvP Run</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="tntcards3">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.wins_pvprun || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.deaths_pvprun || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.TNTGames?.wins_pvprun || 0, player?.stats?.TNTGames?.deaths_pvprun || 0).toLocaleString()}</span><span class="white shadow">WLR</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:30px;">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.secToTime(player?.stats?.TNTGames?.record_pvprun || 0)}</span><span class="white shadow">Best Time</span></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+              <div style="margin-top: 320px;position: absolute;">
+                  <div class="arcade_table">
+                    <div style="background-image: url(https://i.imgur.com/hAmWLyY.png" class="arcade_package">
+                      <h1 class="duels-header">TNT Tag</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="tntcards3">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.wins_tntag || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.kills_tntag || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${(player?.achievements?.tntgames_clinic || 0).toLocaleString()}</span><span class="white shadow">Tags</span></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background-image: url(https://i.imgur.com/hAmWLyY.png" class="arcade_package">
+                      <h1 class="duels-header">Bow Spleef</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="tntcards3">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.wins_bowspleef || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.deaths_bowspleef || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.TNTGames?.wins_bowspleef || 0, player?.stats?.TNTGames?.deaths_bowspleef || 0).toLocaleString()}</span><span class="white shadow">WLR</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:30px;">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.tags_bowspleef || 0).toLocaleString()}</span><span class="white shadow">Hits</span></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 600px;position:absolute;">
+                <div class="arcade_table">
+                  <div style="background-image: url(https://i.imgur.com/hAmWLyY.png" class="arcade_package">
+                  <h1 class="duels-header">Wizards</h1>
+                  <div class="content-center">
+                      <div style="margin-top: -10px;" class="tntcards3">
+                        <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.kills_capture|| 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                        <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.deaths_capture || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                        <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.TNTGames?.kills_capture || 0, player?.stats?.TNTGames?.deaths_capture || 0).toLocaleString()}</span><span class="white shadow">KDR</span></a>
+                      </div>
+                      <div class="content-center" style="margin-top:30px;">
+                        <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.TNTGames?.wins_capture || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck16">
-                  <label class="tab-label" for="chck16">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck16">UHC Champions</label>
+                  <div style="height: 532px;"class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="uhc-solo" class="uhc-button-top">Solo</button>
+                    <button id="uhc-overall" class="uhc-button-top">Overall</button>
+                    <button id="uhc-teams" class="uhc-button-top">Teams</button>
                   </div>
+                  <div class="uhc-display content-center" style="visibility:hidden;" id="uhc_solo">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/7Rp908q.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getUhcTitle(player?.stats?.UHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.rankedKitParser(player?.stats?.UHC?.equippedKit)}</span><span style="color:#F2F2F2">Active Kit</span></a></div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getUhcTitle(player?.stats?.UHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.score || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                    <div style="margin-top: 190px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.kills_solo || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.UHC?.deaths_solo || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.UHC?.kills_solo || 0, player?.stats?.UHC?.deaths_solo || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.wins_solo || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.heads_eaten_solo || 0).toLocaleString()}</span><span class="white shadow">Heads Eaten</span></a>
+                    </div>
+                    <div style="margin-top: 340px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.ultimates_crafted_solo || 0).toLocaleString()}</span><span class="white shadow">Ultimates Crafted</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.extra_ultimates_crafted_solo || 0).toLocaleString()}</span><span class="white shadow">Extra Ultimates</span></a>
+                    </div>
+                  </div>
+                  <div class="uhc-display content-center" style="" id="uhc_overall">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/hIQH8fA.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getUhcTitle(player?.stats?.UHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.rankedKitParser(player?.stats?.UHC?.equippedKit)}</span><span style="color:#F2F2F2">Active Kit</span></a></div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getUhcTitle(player?.stats?.UHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.score || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                    <div style="margin-top: 190px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.achievements?.uhc_hunter || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.UHC?.deaths_solo || 0) + (player?.stats?.UHC?.deaths || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.achievements?.uhc_hunter || 0, (player?.stats?.UHC?.deaths_solo || 0) + (player?.stats?.UHC?.deaths || 0))}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.UHC?.wins || 0) + (player?.stats?.UHC?.wins_solo || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.UHC?.heads_eaten || 0) + (player?.stats?.UHC?.heads_eaten_solo || 0)).toLocaleString()}</span><span class="white shadow">Heads Eaten</span></a>
+                    </div>
+                    <div style="margin-top: 340px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.UHC?.ultimates_crafted || 0) + (player?.stats?.UHC?.ultimates_crafted_solo || 0)).toLocaleString()}</span><span class="white shadow">Ultimates Crafted</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.UHC?.extra_ultimates_crafted || 0) + (player?.stats?.UHC?.extra_ultimates_crafted_solo || 0)).toLocaleString()}</span><span class="white shadow">Extra Ultimates</span></a>
+                    </div>
+                  </div>
+                  <div class="uhc-display content-center" style="visibility:hidden;" id="uhc_teams">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/WD5F4Hf.png">
+                    <div class="bwimgtt" style="margin-top:16px;font-size:18px;font-family:MinecraftiaRegular;"><a><h1>${this.mcColorParser(this.getUhcTitle(player?.stats?.UHC?.score || 0).formattedLevel)} ${displayName} ${gcolor}</h1></a></div>
+                    <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.rankedKitParser(player?.stats?.UHC?.equippedKit)}</span><span style="color:#F2F2F2">Active Kit</span></a></div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${this.getUhcTitle(player?.stats?.UHC?.score || 0).title}</span><span class="white shadow">Title</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.UHC?.score || 0).toLocaleString()}</span><span class="white shadow">Score</span></a>
+                    </div>
+                    <div style="margin-top: 190px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.UHC?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.UHC?.kills || 0, player?.stats?.UHC?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.heads_eaten || 0).toLocaleString()}</span><span class="white shadow">Heads Eaten</span></a>
+                    </div>
+                    <div style="margin-top: 340px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.ultimates_crafted || 0).toLocaleString()}</span><span class="white shadow">Ultimates Crafted</span></a>
+                      <a class="nowrap" style="font-size:20px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.UHC?.extra_ultimates_crafted || 0).toLocaleString()}</span><span class="white shadow">Extra Ultimates</span></a>
+                    </div>
+                  </div>
+                 </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck17">
-                  <label class="tab-label" for="chck17">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck17">Warlords</label>
+                  <div id="wr-tabcontent" style="height: 532px;"class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="wr-stats" class="wr-button-top">Stats</button>
+                    <button id="wr-kits" class="wr-button-top">Kits</button>
+                  </div>
+                  <div class="wr-display content-center" style="" id="wr_stats">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/Y2cIeEP.png">
+                    <div class="bwimgtt" style="margin-top:83px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.rankedKitParser(player?.stats?.Battleground?.chosen_class)}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Battleground?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Battleground?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Battleground?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Battleground?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Battleground?.wins || 0, player?.stats?.Battleground?.losses || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Battleground?.kills || 0, player?.stats?.Battleground?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.win_streak || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.assists || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    </div>
+                  </div>
+                  <div class="wr-display content-center" style="visibility:hidden;" id="wr_kits">
+                  <div style="margin-top: 0px;position: absolute;">
+                  <div class="arcade_table">
+                    <div style="background-image: url(https://i.imgur.com/7R0a4MI.png" class="arcade_package">
+                      <h1 class="duels-header">Mage</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.wins_mage || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_mage || 0).toLocaleString()}</span><span class="white shadow">DMG</span></a>
+                        </div>
+                        <div style="margin-top: 10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.heal_mage || 0).toLocaleString()}</span><span class="white shadow">Heal</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_prevented_mage || 0).toLocaleString()}</span><span class="white shadow">Prevent</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:40px">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Battleground?.damage_mage || 0) + (player?.stats?.Battleground?.heal_mage || 0) + (player?.stats?.Battleground?.damage_prevented_mage || 0)).toLocaleString()}</span><span class="white shadow">Total</span></a>
+                        </div>
+                      </div>
+                    </div>
+                    <div style="background-image: url(https://i.imgur.com/7R0a4MI.png" class="arcade_package">
+                      <h1 class="duels-header">Warrior</h1>
+                      <div class="content-center">
+                        <div style="margin-top: -10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.wins_warrior || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_warrior || 0).toLocaleString()}</span><span class="white shadow">DMG</span></a>
+                        </div>
+                        <div style="margin-top: 10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.heal_warrior || 0).toLocaleString()}</span><span class="white shadow">Heal</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_prevented_warrior || 0).toLocaleString()}</span><span class="white shadow">Prevent</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:40px">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Battleground?.damage_warrior || 0) + (player?.stats?.Battleground?.heal_warrior || 0) + (player?.stats?.Battleground?.damage_prevented_warrior || 0)).toLocaleString()}</span><span class="white shadow">Total</span></a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 270px;position: absolute;">
+                <div class="arcade_table">
+                  <div style="background-image: url(https://i.imgur.com/7R0a4MI.png" class="arcade_package">
+                    <h1 class="duels-header">Paladin</h1>
+                    <div class="content-center">
+                        <div style="margin-top: -10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.wins_paladin || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_paladin || 0).toLocaleString()}</span><span class="white shadow">DMG</span></a>
+                        </div>
+                        <div style="margin-top: 10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.heal_paladin || 0).toLocaleString()}</span><span class="white shadow">Heal</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_prevented_paladin || 0).toLocaleString()}</span><span class="white shadow">Prevent</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:40px">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Battleground?.damage_paladin || 0) + (player?.stats?.Battleground?.heal_paladin || 0) + (player?.stats?.Battleground?.damage_prevented_paladin || 0)).toLocaleString()}</span><span class="white shadow">Total</span></a>
+                        </div>
+                    </div>
+                  </div>
+                  <div style="background-image: url(https://i.imgur.com/7R0a4MI.png" class="arcade_package">
+                    <h1 class="duels-header">Shaman</h1>
+                    <div class="content-center">
+                        <div style="margin-top: -10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.wins_shaman || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_shaman || 0).toLocaleString()}</span><span class="white shadow">DMG</span></a>
+                        </div>
+                        <div style="margin-top: 10px;" class="duelcards">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.heal_shaman || 0).toLocaleString()}</span><span class="white shadow">Heal</span></a>
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Battleground?.damage_prevented_shaman || 0).toLocaleString()}</span><span class="white shadow">Prevent</span></a>
+                        </div>
+                        <div class="content-center" style="margin-top:40px">
+                          <a class="nowrap" style="font-size:12px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Battleground?.damage_shaman || 0) + (player?.stats?.Battleground?.heal_shaman || 0) + (player?.stats?.Battleground?.damage_prevented_shaman || 0)).toLocaleString()}</span><span class="white shadow">Total</span></a>
+                        </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </div>
+              </div>
+              </div>
+              </div>
                   </div>
                 </div>
                   </div>
@@ -3633,6 +4931,7 @@
               this.gamesButtonLoader()
               this.bwBarLoader()
               this.blitzKitImageLoader()
+              this.rankedRatingLoader()
               
               document.getElementById("zombies_table").addEventListener("click", this.showZomTable);
 
