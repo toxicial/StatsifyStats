@@ -1,7 +1,7 @@
 /**
  * @name StatsifyStats
  * @author Toxicial
- * @version 1.1.1
+ * @version 1.1.2
  * @invite ZzBFTh4zhm
  * @donate https://www.patreon.com/statsify
  * @patreon https://www.patreon.com/statsify
@@ -14,13 +14,19 @@
 		"info": {
 			"name": "StatsifyStats",
 			"author": "toxicial",
-			"version": "1.1.1",
+			"version": "1.1.2",
 			"description": "Adds a Hypixel stats search within discord in the chat toolbar."
 		},
 		"rawUrl": `https://raw.githubusercontent.com/toxicial/StatsifyStats/main/StatsifyStats.plugin.js`,
 		"changeLog": {
+      "progress": {
+        "working": "i am pretty much done with this project, ill be adding more updates maybe sometime in the later time, but atm currently will be working on other things so expect less updates, if bug's appear report on github and ill fix it asap. thank you! :)"
+      },
       "added": {
-        "games": "Finished the main games.",
+        "games": "Finished All Games",
+      },
+      "fixed": {
+        "ranked sw": "fixed the problem with ranked sw past ratings"
       }
 		}
 	};
@@ -283,6 +289,13 @@
                   .wr-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
                   .wr-button-top:hover{background-color: var(--brand-experiment-560)}
                   .wr-button-top:active{background-color: var(--brand-experiment-600)}
+                  .ab-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .ab-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .ab-button-top:active{background-color: var(--brand-experiment-600)}
+                  .quake-button-top{padding-right: 20px;padding-left: 20px;padding-bottom: 10px;padding-top: 10px;;margin-right:6px;background-color: var(--brand-experiment);font-size: 16px;font-weight: 500;;color: white;font-family: var( --font-primary);border-radius:5px;}
+                  .quake-button-top:hover{background-color: var(--brand-experiment-560)}
+                  .quake-button-top:active{background-color: var(--brand-experiment-600)}
+                  
               `);
 
 
@@ -1852,6 +1865,62 @@
                   }
               })
             })
+            document.querySelectorAll(".ab-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "ab-overall":
+                      document.querySelectorAll(".ab-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("ab_overall").style.visibility = ""
+                      })
+                    break
+                    case "ab-1v1":
+                      document.querySelectorAll(".ab-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("ab_1v1").style.visibility = ""
+                      })
+                    break
+                    case "ab-2v2":
+                      document.querySelectorAll(".ab-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("ab_2v2").style.visibility = ""
+                      })
+                    break
+                    case "ab-4v4":
+                      document.querySelectorAll(".ab-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("ab_4v4").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
+            document.querySelectorAll(".quake-button-top").forEach((button) => {
+              button.addEventListener("click", (e) => {
+                e.preventDefault()
+                  switch (e?.target?.id) {
+                    case "quake-solo":
+                      document.querySelectorAll(".quake-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("quake_solo").style.visibility = ""
+                      })
+                    break
+                    case "quake-overall":
+                      document.querySelectorAll(".quake-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("quake_overall").style.visibility = ""
+                      })
+                    break
+                    case "quake-teams":
+                      document.querySelectorAll(".quake-display").forEach((element) => {
+                        element.style.visibility = 'hidden'
+                        document.getElementById("quake_teams").style.visibility = ""
+                      })
+                    break
+                  }
+              })
+            })
           }
 
           getBwMainMode() {
@@ -2173,14 +2242,14 @@
           rankedRatingLoader() {
             let body = document.getElementById("ranked_rating")
 
-            for(var i = 1; i < 6; i++) {
+            for(var i = 0; i < 5; i++) {
               let date = new Date()
-              date.setDate(0)
+              date.setDate(1)
               date.setMonth(date.getMonth() - i)
 
               let year = date.getFullYear().toString().substr(2,2)
-              let month = date.getMonth() + 1
-              let cleanMonth = ("0" + (date.getMonth() + 1)).slice(-2)
+              let month = date.getMonth()
+              let cleanMonth = ("0" + (date.getMonth())).slice(-2)
 
               let reqDate = month + "_" + year
               let finalDate = cleanMonth + "-" + year
@@ -2267,6 +2336,28 @@
             if (score < Infinity) return {"level": 15, "formattedLevel": "§6[15✫]", "title": "High Champion"}
 
             return {"level": 1, "formattedLevel": "§6[1✫]", "title": "Recruit"}
+          }
+
+          getAbMainMode () {
+            let solo = player?.stats?.Arena?.games_1v1 || 0
+            let doubles = player?.stats?.Arena?.games_2v2 || 0
+            let teams = player?.stats?.Arena?.games_4v4 || 0
+
+            switch(Math.max(solo, doubles, teams)) {
+              case solo: return "1v1"
+              case doubles: return "2v2"
+              case teams: return "4v4"
+            }
+          }
+
+          getQuakeMainMode () {
+            let solo = player?.stats?.Quake?.wins || 0
+            let doubles = player?.stats?.Quake?.wins_teams || 0
+
+            switch(Math.max(solo, doubles)) {
+              case solo: return "Solo"
+              case doubles: return "Teams"
+            }
           }
 
 
@@ -4881,44 +4972,276 @@
                 <div>
               <div class="tab">
                 <input class="input56" type="checkbox" id="chck18">
-                <label class="tab-label" for="chck18">Item 3</label>
-                <div class="tab-content">
-                  text
+                <label class="tab-label" for="chck18">Arena Brawl</label>
+                <div style="height: 532px;"class="tab-content">
+                <div style="margin-bottom:15px;" class="content-center">
+                  <button id="ab-overall" class="ab-button-top">Overall</button>
+                  <button id="ab-1v1" class="ab-button-top">1v1</button>
+                  <button id="ab-2v2" class="ab-button-top">2v2</button>
+                  <button id="ab-4v4" class="ab-button-top">4v4</button>
+                </div>
+                <div class="ab-display content-center" style="" id="ab_overall">
+                <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/5PMcuUl.png">
+                <div class="bwimgtt" style="margin-top:100px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getAbMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                <div style="margin-top: 220px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Arena?.wins_1v1 || 0) + (player?.stats?.Arena?.wins_2v2 || 0) + (player?.stats?.Arena?.wins_4v4 || 0)).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Arena?.kills_1v1 || 0) + (player?.stats?.Arena?.kills_2v2 || 0) + (player?.stats?.Arena?.kills_4v4 || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                </div>
+                <div style="margin-top: 250px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Arena?.losses_1v1 || 0) + (player?.stats?.Arena?.losses_2v2 || 0) + (player?.stats?.Arena?.losses_4v4 || 0)).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Arena?.deaths_1v1 || 0) + (player?.stats?.Arena?.deaths_2v2 || 0) + (player?.stats?.Arena?.deaths_4v4 || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                </div>
+                <div style="margin-top: 280px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Arena?.wins_1v1 || 0) + (player?.stats?.Arena?.wins_2v2 || 0) + (player?.stats?.Arena?.wins_4v4 || 0), (player?.stats?.Arena?.losses_1v1 || 0) + (player?.stats?.Arena?.losses_2v2  || 0) + (player?.stats?.Arena?.losses_4v4 || 0))}</span><span class="white shadow">WLR</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Arena?.kills_1v1 || 0) + (player?.stats?.Arena?.kills_2v2 || 0) + (player?.stats?.Arena?.kills_4v4 || 0), (player?.stats?.Arena?.deaths_1v1 || 0) + (player?.stats?.Arena?.deaths_2v2  || 0) + (player?.stats?.Arena?.deaths_4v4 || 0))}</span><span class="white shadow">KDR</span></a>
+                </div>
+                <div style="margin-top: 430px;" class="bsgimgstats3">
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Arena?.win_streaks_1v1 || 0) + (player?.stats?.Arena?.win_streaks_2v2 || 0) + (player?.stats?.Arena?.win_streaks || 0)).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.keys || 0).toLocaleString()}</span><span class="white shadow">Keys</span></a>
+                </div>
+                </div>
+                <div class="ab-display content-center" style="visibility:hidden;" id="ab_1v1">
+                <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/dZVpwUj.png">
+                <div class="bwimgtt" style="margin-top:100px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getAbMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                <div style="margin-top: 220px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.wins_1v1 || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.kills_1v1 || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                </div>
+                <div style="margin-top: 250px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.losses_1v1 || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.deaths_1v1 || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                </div>
+                <div style="margin-top: 280px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.wins_1v1 || 0, player?.stats?.Arena?.losses_1v1 || 0)}</span><span class="white shadow">WLR</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.kills_1v1 || 0, player?.stats?.Arena?.deaths_1v1 || 0)}</span><span class="white shadow">KDR</span></a>
+                </div>
+                <div style="margin-top: 430px;" class="bsgimgstats3">
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.win_streaks_1v1 || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.keys || 0).toLocaleString()}</span><span class="white shadow">Keys</span></a>
+                </div>
+                </div>
+                <div class="ab-display content-center" style="visibility:hidden;" id="ab_2v2">
+                <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/YIi8Drr.png">
+                <div class="bwimgtt" style="margin-top:100px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getAbMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                <div style="margin-top: 220px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.wins_2v2 || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.kills_2v2  || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                </div>
+                <div style="margin-top: 250px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.losses_2v2  || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.deaths_2v2  || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                </div>
+                <div style="margin-top: 280px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.wins_2v2  || 0, player?.stats?.Arena?.losses_2v2  || 0)}</span><span class="white shadow">WLR</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.kills_2v2  || 0, player?.stats?.Arena?.deaths_2v2  || 0)}</span><span class="white shadow">KDR</span></a>
+                </div>
+                <div style="margin-top: 430px;" class="bsgimgstats3">
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.win_streaks_2v2  || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.keys || 0).toLocaleString()}</span><span class="white shadow">Keys</span></a>
+                </div>
+                </div>
+                <div class="ab-display content-center" style="visibility:hidden;" id="ab_4v4">
+                <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/pwxSias.png">
+                <div class="bwimgtt" style="margin-top:100px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getAbMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                <div style="margin-top: 220px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.wins_4v4 || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Arena?.kills_4v4 || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                </div>
+                <div style="margin-top: 250px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.losses_4v4 || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Arena?.deaths_4v4 || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                </div>
+                <div style="margin-top: 280px;" class="mwimgstats2">
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.wins_4v4 || 0, player?.stats?.Arena?.losses_4v4 || 0)}</span><span class="white shadow">WLR</span></a>
+                  <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Arena?.kills_4v4 || 0, player?.stats?.Arena?.deaths_4v4 || 0)}</span><span class="white shadow">KDR</span></a>
+                </div>
+                <div style="margin-top: 430px;" class="bsgimgstats3">
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.win_streaks_4v4 || 0).toLocaleString()}</span><span class="white shadow">Winstreak</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                  <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Arena?.keys || 0).toLocaleString()}</span><span class="white shadow">Keys</span></a>
+                </div>
+                </div>
                 </div>
               </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck19">
-                  <label class="tab-label" for="chck19">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck19">Paintball</label>
+                  <div style="height: 474px;"class="tab-content">
+                  <div class="content-center">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/dM3nhlG.png">
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Paintball?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Paintball?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Paintball?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Paintball?.shots_fired || 0).toLocaleString()}</span><span class="white shadow">Shots</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Paintball?.kills || 0, player?.stats?.Paintball?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Paintball?.shots_fired || 0, player?.stats?.Paintball?.kills || 0)}</span><span class="white shadow">SKR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Paintball?.killstreaks || 0).toLocaleString()}</span><span class="white shadow">Streaks</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Paintball?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Paintball?.forcefieldTime|| 0).toLocaleString()}ms</span><span class="white shadow">Forcefield</span></a>
+                    </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck20">
-                  <label class="tab-label" for="chck20">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck20">Quake</label>
+                  <div style="height: 532px;"class="tab-content">
+                  <div style="margin-bottom:15px;" class="content-center">
+                    <button id="quake-solo" class="quake-button-top">Solo</button>
+                    <button id="quake-overall" class="quake-button-top">Overall</button>
+                    <button id="quake-teams" class="quake-button-top">Teams</button>
+                  </div>
+                  <div class="quake-display content-center" style="visibility:hidden;" id="quake_solo">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/TdX1k99.png">
+                  <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getQuakeMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 220px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Quake?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Quake?.shots_fired || 0).toLocaleString()}</span><span class="white shadow">Fired</span></a>
+                  </div>
+                  <div style="margin-top: 250px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Quake?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Quake?.headshots || 0).toLocaleString()}</span><span class="white shadow">Headshots</span></a>
+                  </div>
+                  <div style="margin-top: 280px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Quake?.kills || 0, player?.stats?.Quake?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Quake?.headshots || 0, player?.stats?.Quake?.kills || 0)}</span><span class="white shadow">HKR</span></a>
+                  </div>
+                  <div style="margin-top: 430px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.killstreaks || 0).toLocaleString()}</span><span class="white shadow">Streaks</span></a>
+                  </div>
+                  </div>
+                  <div class="quake-display content-center" style="" id="quake_overall">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/OXUbFUW.png">
+                  <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getQuakeMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 220px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Quake?.kills || 0) + (player?.stats?.Quake?.kills_teams || 0)).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${((player?.stats?.Quake?.shots_fired || 0) + (player?.stats?.Quake?.shots_fired_teams  || 0)).toLocaleString()}</span><span class="white shadow">Fired</span></a>
+                  </div>
+                  <div style="margin-top: 250px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Quake?.deaths || 0) + (player?.stats?.Quake?.deaths_teams  || 0)).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${((player?.stats?.Quake?.headshots || 0) + (player?.stats?.Quake?.headshots_teams  || 0)).toLocaleString()}</span><span class="white shadow">Headshots</span></a>
+                  </div>
+                  <div style="margin-top: 280px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Quake?.kills || 0) + (player?.stats?.Quake?.kills_teams  || 0), (player?.stats?.Quake?.deaths || 0) + (player?.stats?.Quake?.deaths_teams  || 0))}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio((player?.stats?.Quake?.headshots || 0) + (player?.stats?.Quake?.headshots_teams  || 0), (player?.stats?.Quake?.kills || 0) + (player?.stats?.Quake?.kills_teams  || 0))}</span><span class="white shadow">HKR</span></a>
+                  </div>
+                  <div style="margin-top: 430px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Quake?.wins || 0) + player?.stats?.Quake?.wins_teams || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${((player?.stats?.Quake?.killstreaks || 0) + (player?.stats?.Quake?.killstreaks_teams  || 0)).toLocaleString()}</span><span class="white shadow">Streaks</span></a>
+                  </div>
+                  </div>
+                  <div class="quake-display content-center" style="visibility:hidden;" id="quake_teams">
+                  <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/PSMQcAJ.png">
+                  <div class="bwimgtt" style="margin-top:97px;font-size:18px;font-family:MinecraftiaRegular;"><a><span style="color:#93d2f2;margin-right:10px">${this.getQuakeMainMode()}</span><span style="color:#F2F2F2">Main Mode</span></a></div>
+                  <div style="margin-top: 220px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Quake?.kills_teams || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Quake?.shots_fired_teams || 0).toLocaleString()}</span><span class="white shadow">Fired</span></a>
+                  </div>
+                  <div style="margin-top: 250px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Quake?.deaths_teams || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Quake?.headshots_teams || 0).toLocaleString()}</span><span class="white shadow">Headshots</span></a>
+                  </div>
+                  <div style="margin-top: 280px;" class="mwimgstats2">
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Quake?.kills_teams || 0, player?.stats?.Quake?.deaths_teams || 0)}</span><span class="white shadow">KDR</span></a>
+                    <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Quake?.headshots_teams || 0, player?.stats?.Quake?.kills_teams || 0)}</span><span class="white shadow">HKR</span></a>
+                  </div>
+                  <div style="margin-top: 430px;" class="bsgimgstats3">
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                    <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Quake?.killstreaks_teams || 0).toLocaleString()}</span><span class="white shadow">Streaks</span></a>
+                  </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck21">
-                  <label class="tab-label" for="chck21">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck21">Turbo Kart Racers</label>
+                  <div style="height: 474px;"class="tab-content">
+                  <div class="content-center">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/kRqoaux.png">
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.gold_trophy || 0).toLocaleString()}</span><span class="white shadow">Gold</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.laps_completed || 0).toLocaleString()}</span><span class="white shadow">Laps</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.silver_trophy || 0).toLocaleString()}</span><span class="white shadow">Silver</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.box_pickups || 0).toLocaleString()}</span><span class="white shadow">Boxes Collected</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.bronze_trophy || 0).toLocaleString()}</span><span class="white shadow">Bronze</span></a>
+                      <a class="nowrap" style="font-size:19px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.coins_picked_up || 0).toLocaleString()}</span><span class="white shadow">Coins Collected</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.GingerBread?.grand_prix_tokens || 0).toLocaleString()}</span><span class="white shadow">GPT</span></a>
+                    </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck22">
-                  <label class="tab-label" for="chck22">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck22">Vampirez</label>
+                  <div style="height: 474px;"class="tab-content">
+                  <div class="content-center">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/oAcjPfX.png">
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.human_kills || 0).toLocaleString()}</span><span class="white shadow">Human Kills</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.vampire_kills || 0).toLocaleString()}</span><span class="white shadow">Vampire Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.human_deaths || 0).toLocaleString()}</span><span class="white shadow">Human Deaths</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.vampire_deaths || 0).toLocaleString()}</span><span class="white shadow">Vampire Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.VampireZ?.human_kills || 0, player?.stats?.VampireZ?.human_deaths || 0)}</span><span class="white shadow">Human KDR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.VampireZ?.vampire_kills || 0, player?.stats?.VampireZ?.vampire_deaths || 0)}</span><span class="white shadow">Vampire KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.human_wins || 0).toLocaleString()}</span><span class="white shadow">Human Wins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.VampireZ?.vampire_wins || 0).toLocaleString()}</span><span class="white shadow">Vampire Wins</span></a>
+                    </div>
+                  </div>
                   </div>
                 </div>
                 <div class="tab">
                   <input class="input56" type="checkbox" id="chck23">
-                  <label class="tab-label" for="chck23">Item 3</label>
-                  <div class="tab-content">
-                    text
+                  <label class="tab-label" for="chck23">Walls</label>
+                  <div style="height: 474px;"class="tab-content">
+                  <div class="content-center">
+                    <img style="transform:scale(.448);margin-top: -290px;border-radius: 23px;position:absolute;z-index:-1;" src="https://i.imgur.com/PnF2bZ1.png">
+                    <div style="margin-top: 220px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Walls?.wins || 0).toLocaleString()}</span><span class="white shadow">Wins</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="green shadow"style="margin-right:10px">${(player?.stats?.Walls?.kills || 0).toLocaleString()}</span><span class="white shadow">Kills</span></a>
+                    </div>
+                    <div style="margin-top: 250px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Walls?.losses || 0).toLocaleString()}</span><span class="white shadow">Losses</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="red shadow"style="margin-right:10px">${(player?.stats?.Walls?.deaths || 0).toLocaleString()}</span><span class="white shadow">Deaths</span></a>
+                    </div>
+                    <div style="margin-top: 280px;" class="mwimgstats2">
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Walls?.wins || 0, player?.stats?.Walls?.losses || 0)}</span><span class="white shadow">WLR</span></a>
+                      <a class="nowrap" style="font-size:22px;font-family:MinecraftiaRegular;"><span class="yellow shadow"style="margin-right:10px">${this.ratio(player?.stats?.Walls?.kills || 0, player?.stats?.Walls?.deaths || 0)}</span><span class="white shadow">KDR</span></a>
+                    </div>
+                    <div style="margin-top: 430px;" class="bsgimgstats3">
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls?.shout_count || 0).toLocaleString()}</span><span class="white shadow">Shouts</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls?.coins || 0).toLocaleString()}</span><span class="white shadow">Coins</span></a>
+                      <a class="nowrap" style="font-size:18px;font-family:MinecraftiaRegular;"><span class="gold shadow"style="margin-right:10px">${(player?.stats?.Walls?.assists || 0).toLocaleString()}</span><span class="white shadow">Assists</span></a>
+                    </div>
+                  </div>
                   </div>
                 </div>
               </div>
